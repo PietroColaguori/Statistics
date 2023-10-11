@@ -51,3 +51,7 @@ pre code {
     font-family: monospace;
     font-size: 15px;
 }
+
+.red {
+    color: rgb(157, 9, 9);
+}
