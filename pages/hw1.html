@@ -6,6 +6,7 @@
         <meta http-equiv='pragma' content='no-cache'>
         <title>Homework 1</title>
         <link rel="stylesheet" href="../style.css">
+        <link rel="stylesheet" href="../prism.css"> 
     </head>
     <body>
         <h1>Homework 1</h1>
@@ -68,8 +69,6 @@ Inferential statistics use data from a sample to make predictions or generalizat
         <h3>Question 4</h3>
         <p class="question">Briefly describe the main experiment designs</p>
         <p class="answer">
-            Sure, here are the main experiment designs:
-
 1. Full Factorial Design: This design tests all possible combinations of the factors. It provides a comprehensive view but can be time-consuming and resource-intensive.
 
 2. Response Surface Design: This design is used when you want to model a response variable by testing the effects of multiple factors and their interactions.
@@ -93,9 +92,37 @@ Remember, the choice of experimental design depends on your research question, t
         <h2>Applications</h2>
         <h3>Request 1</h3>
         <p class="question">Write a program in C# or VB.NET that creates a window containing a single line, point, circle, rectangle</p>
-        
+        <pre><code class="language-csharp">
+            using System;
+            using System.Drawing;
+            using System.Windows.Forms;
+
+            namespace hw1
+            {
+                public partial class Form1 : Form
+                {
+                    public Form1()
+                    {
+                        InitializeComponent();
+                    }
+
+                    protected override void OnPaint(PaintEventArgs e)
+                    {
+                        base.OnPaint(e);
+                        Graphics g = e.Graphics;
+                        Pen pen = new Pen(Color.Purple);
+
+                        g.DrawLine(pen, 50, 50, 300, 300);
+                    }
+                }
+            }
+        </code></pre>
         <br>
         <h3>Request 2</h3>
         <p class="question">Write a program in JavaScript or TypeScript that creates a window containing a single line, point, circle, rectangle.</p>
+        <p class="code">
+
+        </p>
+        <script src="../prism.js"></script>
     </body>
 </html>
