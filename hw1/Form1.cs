@@ -15,9 +15,10 @@ namespace hw1
         {
             base.OnPaint(e);
             Graphics g = e.Graphics;
-            Pen pen = new Pen(Color.Purple);
-
-            g.DrawLine(pen, 50, 50, 300, 300);
+            Pen pen = new Pen(Color.Black, 3);
+            Brush brush = new SolidBrush(Color.Purple);
+            g.DrawEllipse(pen, 50, 50, 100, 100);
+            g.FillEllipse(brush, 50, 50, 100, 100);
         }
     }
 }

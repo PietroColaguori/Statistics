@@ -121,6 +121,36 @@ Remember, the choice of experimental design depends on your research question, t
         <br>
         <p>The Output is the following: </p>
         <img src="../images/h1a1.png" alt="line" width="500" height="500">
+        <br>
+        <p class="answer">2. Circle in C#</p><br>
+        <pre><code class="language-csharp">
+            using System;
+            using System.Drawing;
+            using System.Windows.Forms;
+
+            namespace hw1
+            {
+                public partial class Form1 : Form
+                {
+                    public Form1()
+                    {
+                        InitializeComponent();
+                    }
+
+                    protected override void OnPaint(PaintEventArgs e)
+                    {
+                        base.OnPaint(e);
+                        Graphics g = e.Graphics;
+                        Pen pen = new Pen(Color.Black, 3);
+                        Brush brush = new SolidBrush(Color.Purple);
+                        g.DrawEllipse(pen, 50, 50, 100, 100);
+                        g.FillEllipse(brush, 50, 50, 100, 100);
+                    }
+                }
+            }
+        </code></pre>
+        <br><p class="answer">The Output is the following:</p><br>
+        <img src="../images/h1a2.png" alt="circle" width="500" height="500">
         <h3>Request 2</h3>
         <p class="question">Write a program in JavaScript or TypeScript that creates a window containing a single line, point, circle, rectangle.</p>
         <p class="code">
