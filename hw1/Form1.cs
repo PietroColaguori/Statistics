@@ -14,12 +14,9 @@ namespace hw1
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-
-            // Create a new Pen object with a black color and a width of 1 pixel
-            Pen pen = new Pen(Color.Black, 1);
-
-            // Draw a point at (10, 10)
-            e.Graphics.DrawRectangle(pen, 10, 10, 1, 1);
+            Pen pen = new Pen(Color.Purple, 3);
+            Rectangle rect = new Rectangle(50, 50, 200, 100);
+            e.Graphics.DrawRectangle(pen, rect);
         }
     }
 }
