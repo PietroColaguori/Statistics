@@ -14,11 +14,12 @@ namespace hw1
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Graphics g = e.Graphics;
-            Pen pen = new Pen(Color.Black, 3);
-            Brush brush = new SolidBrush(Color.Purple);
-            g.DrawEllipse(pen, 50, 50, 100, 100);
-            g.FillEllipse(brush, 50, 50, 100, 100);
+
+            // Create a new Pen object with a black color and a width of 1 pixel
+            Pen pen = new Pen(Color.Black, 1);
+
+            // Draw a point at (10, 10)
+            e.Graphics.DrawRectangle(pen, 10, 10, 1, 1);
         }
     }
 }
