@@ -41,6 +41,10 @@
         <!-- Frequency distributions will be displayed here -->
     </div>
 
+    <div id="jointResults">
+        <!-- Joint probability distribution will be displayed here -->  
+    </div>
+
     <script>
         function analyze() {
             // Access contents of XLSX file
@@ -193,7 +197,7 @@
         }
 
         function displayJointProbability(jointProb) {
-            var resultsDiv = document.getElementById("results");
+            var resultsDiv = document.getElementById("jointResults");
             resultsDiv.innerHTML += "<h4>Joint Probability Distribution:</h4>";
             for (var sexVal in jointProb) {
                 for (var teamVal in jointProb[sexVal]) {
@@ -201,7 +205,7 @@
                 }
             }
         }
-        
+
     </script>
 
     <h3 class="red">After Life Survey - Analysis</h3>
