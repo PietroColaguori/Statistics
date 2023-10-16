@@ -56,11 +56,18 @@
                 var expectedSalary = [];
                 var height = [];
                 for (var i = 0; i < xlData.length; i++) {
-                    workSectors.push(xlData[i]["Expected work sectors"]);
-                    expectedSalary.push(xlData[i]["Expected salary"]);
-                    height.push(xlData[i]["height"]);
+                    var sector = xlData[i]["Expected work sectors"];
+                    var salary = xlData[i]["Expected salary"];
+                    var h = xlData[i]["height"];
+
+                    // Check if any of the values are empty and skip the row
+                    if (sector !== undefined && salary !== undefined && h !== undefined) {
+                        workSectors.push(sector);
+                        expectedSalary.push(salary);
+                        height.push(h);
+                    }
                 }
-        
+
                 // Compute the frequency distribution of the 3 variables
                 var workSectorsFreq = {};
                 for (var i = 0; i < workSectors.length; i++) {
@@ -73,8 +80,11 @@
         
                 var expectedSalaryFreq = {};
                 for (var i = 0; i < expectedSalary.length; i++) {
-                    if (expectedSalaryFreq[expectedSalary[i]] != undefined) {
+                    if (expectedSalaryFreq[expectedSalary[i]] == undefined) {
+                        expectedSalaryFreq[expectedSalary[i]] = 1;
+                    } else {
                         expectedSalaryFreq[expectedSalary[i]]++;
+                    }
                 }
         
                 var heightFreq = {};
@@ -122,7 +132,6 @@
                 displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq, workSectorsRelFreq, expectedSalaryRelFreq, heightRelFreq, workSectorsPercFreq, expectedSalaryPercFreq, heightPercFreq);
             };
             reader.readAsBinaryString(file);
-            }
         }
         
         function displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq, workSectorsRelFreq, expectedSalaryRelFreq, heightRelFreq, workSectorsPercFreq, expectedSalaryPercFreq, heightPercFreq) {
@@ -157,8 +166,5 @@
             resultsDiv.innerHTML += "</table>";
         }
     </script>
-    
-    <script src="../prism.js"></script>
-
 </body>
 </html>
