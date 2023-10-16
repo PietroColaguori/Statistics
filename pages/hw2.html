@@ -353,67 +353,44 @@ Play with N and k values and draw some conclusion on the "shape" of the distribu
 
     <script>
             function generate() {
-                var N = document.getElementById("N").value;
-                var k = document.getElementById("k").value;
-                var output = document.getElementById("output3");
-                output.innerHTML = "";
-                var randoms = [];
-                for (var i = 0; i < N; i++) {
-                    randoms.push(Math.random());
-                }
-                var classIntervals = [];
-                for (var i = 0; i < k; i++) {
-                    classIntervals.push([i/k, (i+1)/k]);
-                }
-                var classFreq = {};
-                for (var i = 0; i < classIntervals.length; i++) {
-                    classFreq[i] = 0;
-                }
-                for (var i = 0; i < randoms.length; i++) {
-                    for (var j = 0; j < classIntervals.length; j++) {
-                        if (randoms[i] >= classIntervals[j][0] && randoms[i] < classIntervals[j][1]) {
-                            classFreq[j]++;
-                        }
-                    }
-                }
-                for (var i = 0; i < classIntervals.length; i++) {
-                    output.innerHTML += "[" + classIntervals[i][0] + ", " + classIntervals[i][1] + "): " + classFreq[i] + "<br>";
-                }
-                
-                 // Generate N random variates in [0, 1)
-                const randomVariates = Array.from({ length: N }, () => Math.random());
+function generate() {
+    var N = document.getElementById("N").value;
+    var k = document.getElementById("k").value;
+    var data = [];
+    var intervalSize = 1 / k;
+    var histogramData = new Array(k).fill(0);
 
-        // Calculate the histogram
-        const binEdges = Array.from({ length: k + 1 }, (_, i) => (i / k));
-        const histogram = Array.from({ length: k }, (_, i) => {
-            const lowerBound = binEdges[i];
-            const upperBound = binEdges[i + 1];
-            return randomVariates.filter(value => value >= lowerBound && value < upperBound).length / N;
-        });
+    // Generate N uniform random variates in [0,1)
+    for (var i = 0; i < N; i++) {
+        data.push(Math.random());
+    }
 
-        // Display the histogram using Chart.js
-        const ctx = document.getElementById('histogram').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: binEdges.slice(0, k),
-                datasets: [{
-                    label: 'Frequency',
-                    data: histogram,
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)'
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    },
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+    // Determine the distribution into class intervals [i/k, (i+1)/k), i = 0,..., k-1
+    for (var i = 0; i < data.length; i++) {
+        var intervalIndex = Math.floor(data[i] / intervalSize);
+        histogramData[intervalIndex]++;
+    }
+
+    // Plot the histogram
+    var canvas = document.getElementById("histogram");
+    var ctx = canvas.getContext("2d");
+    var canvasWidth = canvas.width;
+    var canvasHeight = canvas.height;
+    var barWidth = canvasWidth / k;
+
+    // Find the maximum value in the histogram data
+    var maxVal = Math.max(...histogramData);
+
+    // Draw the bars of the histogram
+    for (var i = 0; i < histogramData.length; i++) {
+        var barHeight = (histogramData[i] / maxVal) * canvasHeight;
+        var x = i * barWidth;
+        var y = canvasHeight - barHeight;
+        ctx.fillStyle = "blue";
+        ctx.fillRect(x, y, barWidth, barHeight);
+    }
+}
+        
         }
         </script>
         <canvas id="histogram"></canvas>
