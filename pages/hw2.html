@@ -345,6 +345,42 @@ Note in a very concise way your finding in your Js Cheatsheet, and, in case a co
 Play with N and k values and draw some conclusion on the "shape" of the distribution.
     </pre>
 
+    <input type="number" id="N" placeholder="N">
+    <input type="number" id="k" placeholder="k">
+    <button id="generate" onclick="return generate()">Generate</button>
+    <div id="output3"></div>
+
+    <script>
+        function generate() {
+            var N = document.getElementById("N").value;
+            var k = document.getElementById("k").value;
+            var output = document.getElementById("output3");
+            output.innerHTML = "";
+            var randoms = [];
+            for (var i = 0; i < N; i++) {
+                randoms.push(Math.random());
+            }
+            var classIntervals = [];
+            for (var i = 0; i < k; i++) {
+                classIntervals.push([i/k, (i+1)/k]);
+            }
+            var classFreq = {};
+            for (var i = 0; i < classIntervals.length; i++) {
+                classFreq[i] = 0;
+            }
+            for (var i = 0; i < randoms.length; i++) {
+                for (var j = 0; j < classIntervals.length; j++) {
+                    if (randoms[i] >= classIntervals[j][0] && randoms[i] < classIntervals[j][1]) {
+                        classFreq[j]++;
+                    }
+                }
+            }
+            for (var i = 0; i < classIntervals.length; i++) {
+                output.innerHTML += "[" + classIntervals[i][0] + ", " + classIntervals[i][1] + "): " + classFreq[i] + "<br>";
+            }
+        }
+    </script>
+
     <script src="../prism.js"></script>
 </body>
 </html>
