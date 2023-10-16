@@ -221,6 +221,10 @@
         <!-- Frequency distributions will be displayed here -->
     </div>
 
+    <div id="jointResults2">
+        <!-- Joint probability distribution will be displayed here -->
+    </div>
+
     <script>
         function analyze2() {
             // Access contents of XLSX file
@@ -306,8 +310,8 @@
         }
 
         function displayJointProbability2(jointProb) {
-            var resultsDiv = document.getElementById("jointResults");
-            resultsDiv.innerHTML += "<h4>Joint Probability Distribution:</h4>";
+            var resultsDiv = document.getElementById("jointResults2");
+            resultsDiv.innerHTML += "<h4>Joint Probability Distribution (Religious? and Believes in Reincarnation?):</h4>";
             for (var answer in jointProb) {
                 for (var reinc in jointProb[answer]) {
                     resultsDiv.innerHTML += answer + " and " + reinc + ": " + jointProb[answer][reinc].toFixed(2) + "%<br>";
