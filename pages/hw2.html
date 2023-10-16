@@ -57,7 +57,7 @@
                 var height = [];
                 for (var i = 0; i < xlData.length; i++) {
                     var sector = xlData[i]["Expected work sectors"];
-                    var salary = xlData[i]["Expected salary"];
+                    var salary = xlData[i]["Expected net remuneration (monthly)"];
                     var h = xlData[i]["height"];
 
                     // Check if any of the values are empty and skip the row
@@ -140,30 +140,27 @@
             
             // Display the frequency distribution for the "Expected work sectors" variable
             resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
-            resultsDiv.innerHTML += "<table>";
-            resultsDiv.innerHTML += "<tr><th>Work Sector</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
             for (var sector in workSectorsFreq) {
-                resultsDiv.innerHTML += "<tr><td>" + sector + "</td><td>" + workSectorsFreq[sector] + "</td><td>" + workSectorsRelFreq[sector].toFixed(2) + "</td><td>" + workSectorsPercFreq[sector].toFixed(2) + "%</td></tr>";
+                var sectorDiv = document.createElement("div");
+                sectorDiv.textContent = sector + ": " + workSectorsFreq[sector] + " (" + workSectorsRelFreq[sector].toFixed(2) + ", " + workSectorsPercFreq[sector].toFixed(2) + "%)";
+                resultsDiv.appendChild(sectorDiv);
             }
-            resultsDiv.innerHTML += "</table>";
-        
+
             // Display the frequency distribution for the "Expected salary" variable
             resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
-            resultsDiv.innerHTML += "<table>";
-            resultsDiv.innerHTML += "<tr><th>Salary</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
             for (var salary in expectedSalaryFreq) {
-                resultsDiv.innerHTML += "<tr><td>" + salary + "</td><td>" + expectedSalaryFreq[salary] + "</td><td>" + expectedSalaryRelFreq[salary].toFixed(2) + "</td><td>" + expectedSalaryPercFreq[salary].toFixed(2) + "%</td></tr>";
+                var salaryDiv = document.createElement("div");
+                salaryDiv.textContent = salary + ": " + expectedSalaryFreq[salary] + " (" + expectedSalaryRelFreq[salary].toFixed(2) + ", " + expectedSalaryPercFreq[salary].toFixed(2) + "%)";
+                resultsDiv.appendChild(salaryDiv);
             }
-            resultsDiv.innerHTML += "</table>";
-        
+
             // Display the frequency distribution for the "Height" variable
             resultsDiv.innerHTML += "<h4>Height:</h4>";
-            resultsDiv.innerHTML += "<table>";
-            resultsDiv.innerHTML += "<tr><th>Height</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
             for (var h in heightFreq) {
-                resultsDiv.innerHTML += "<tr><td>" + h + "</td><td>" + heightFreq[h] + "</td><td>" + heightRelFreq[h].toFixed(2) + "</td><td>" + heightPercFreq[h].toFixed(2) + "%</td></tr>";
+                var heightDiv = document.createElement("div");
+                heightDiv.textContent = h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + ", " + heightPercFreq[h].toFixed(2) + "%)";
+                resultsDiv.appendChild(heightDiv);
             }
-            resultsDiv.innerHTML += "</table>";
         }
     </script>
 </body>
