@@ -128,6 +128,43 @@
         
                 // Display the frequency distributions on the page
                 displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq);
+            
+                // Access the values of the column "Team leader or Team player ?"
+                var teamLeaderOrPlayer = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Team leader or Team player ?"] !== undefined) {
+                        teamLeaderOrPlayer.push(xlData[i]["Team leader or Team player ?"].toLowerCase());
+                    }
+                }
+
+                // Access the values of the column "Sex"
+                var sex = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Sex"] !== undefined) {
+                        sex.push(xlData[i]["Sex"].toLowerCase());
+                    }
+                }
+
+                // Compute joint probability distribution between sex and teamLeaderOrPlayer
+                var jointProb = {};
+                for (var i = 0; i < sex.length; i++) {
+                    if (jointProb[sex[i]] == undefined) {
+                        jointProb[sex[i]] = {};
+                    }
+                    if (jointProb[sex[i]][teamLeaderOrPlayer[i]] == undefined) {
+                        jointProb[sex[i]][teamLeaderOrPlayer[i]] = 1;
+                    } else {
+                        jointProb[sex[i]][teamLeaderOrPlayer[i]]++;
+                    }
+                }
+
+                for (var sexVal in jointProb) {
+                    for (var teamVal in jointProb[sexVal]) {
+                        jointProb[sexVal][teamVal] /= sex.length;
+                        jointProb[sexVal][teamVal] *= 100;
+                    }
+                }
+
             };
             reader.readAsBinaryString(file);
         }
@@ -154,9 +191,20 @@
                 resultsDiv.innerHTML += h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + " or " + heightPercFreq[h].toFixed(2) + "%)" + "<br>";
             }
         }
+
+        function displayJointProbability(jointProb) {
+            var resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML += "<h4>Joint Probability Distribution:</h4>";
+            for (var sexVal in jointProb) {
+                for (var teamVal in jointProb[sexVal]) {
+                    resultsDiv.innerHTML += sexVal + " and " + teamVal + ": " + jointProb[sexVal][teamVal].toFixed(2) + "%<br>";
+                }
+            }
+        }
+        
     </script>
 
-    <h3 class="red">Afterlife Survey - Analysis</h3>
+    <h3 class="red">After Life Survey - Analysis</h3>
     <!-- Qualitative: religion, Quantitative: ???, Quantitative Continuous: ???-->
     <p> Upload an XLSX file </p>
     <input type="file" id="fileInput2" accept=".xlsx">
