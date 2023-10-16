@@ -155,5 +155,73 @@
             }
         }
     </script>
+
+    <h3 class="red">Afterlife Survey - Analysis</h3>
+    <!-- Qualitative: religion, Quantitative: ???, Quantitative Continuous: ???-->
+    <p> Upload an XLSX file </p>
+    <input type="file" id="fileInpu2t" accept=".xlsx">
+    <button id="upload2" onclick="return analyze2()">Upload</button>
+    <div id="outpu2t"></div>
+    
+    <div id="results2">
+        <!-- Frequency distributions will be displayed here -->
+    </div>
+
+    <script>
+        function analyze2() {
+            // Access contents of XLSX file
+            var file = document.getElementById("fileInput").files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, {type: 'binary'});
+                var sheet_name_list = workbook.SheetNames;
+                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {blankrows: false});
+                
+                // Access the values of the column "Religious yes/no"
+                var religious = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Religious yes/no"] !== undefined) {
+                        religious.push(xlData[i]["Religious yes/no"].toLowerCase());
+                    }
+                }
+        
+                // Compute the frequency distribution of the 3 variables
+                var religious = {};
+                for (var i = 0; i < religious.length; i++) {
+                    if (religiousFreq[religious[i]] == undefined) {
+                        religiousFreq[religious[i]] = 1;
+                    } else {
+                        workSectorsFreq[religious[i]]++;
+                    }
+                }
+        
+                // Compute the relative and percentage frequencies of the 3 variables
+                var religousRelFreq = {};
+                var religiousPercFreq = {};
+                for (var relogiousAnsw in religiousFreq) {
+                    religiousRelFreq[relogiousAnsw] = religiousFreq[relogiousAnsw] / religious.length;
+                    religiousPercFreq[relogiousAnsw] = religousRelFreq[relogiousAnsw] * 100;
+                }
+        
+                // Display the frequency distributions on the page
+                displayResults2(religiousFreq, religousRelFreq, religiousPercFreq);
+            };
+            reader.readAsBinaryString(file);
+        }
+        
+        function displayResults2(religiousFreq, religousRelFreq, religiousPercFreq) {
+            var resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
+            
+            // Display the frequency distribution for the "Expected work sectors" variable
+            resultsDiv.innerHTML += "<h4>Religious [yes/no]:</h4>";
+            for (var relogiousAnsw in religiousFreq) {
+                resultsDiv.innerHTML += relogiousAnsw + ": " + religiousFreq[relogiousAnsw] + " (" + religousRelFreq[relogiousAnsw].toFixed(2) + " or " + religiousPercFreq[relogiousAnsw].toFixed(2) + "%)" + "<br>";
+            }
+        }
+    </script>
+
+    <script src="../prism.js"></script>
 </body>
 </html>
