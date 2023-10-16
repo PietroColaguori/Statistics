@@ -159,9 +159,9 @@
     <h3 class="red">Afterlife Survey - Analysis</h3>
     <!-- Qualitative: religion, Quantitative: ???, Quantitative Continuous: ???-->
     <p> Upload an XLSX file </p>
-    <input type="file" id="fileInpu2t" accept=".xlsx">
+    <input type="file" id="fileInput2" accept=".xlsx">
     <button id="upload2" onclick="return analyze2()">Upload</button>
-    <div id="outpu2t"></div>
+    <div id="output2"></div>
     
     <div id="results2">
         <!-- Frequency distributions will be displayed here -->
@@ -170,7 +170,7 @@
     <script>
         function analyze2() {
             // Access contents of XLSX file
-            var file = document.getElementById("fileInput").files[0];
+            var file = document.getElementById("fileInput2").files[0];
             var reader = new FileReader();
             reader.onload = function(e) {
                 var data = e.target.result;
