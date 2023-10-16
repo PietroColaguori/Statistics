@@ -32,7 +32,7 @@
 
     <h3 class="red">Professional Life Survey - Analysis</h3>
     <!-- Qualitative: expected work sector, Quantitative: expected salary, Quantitative Continuous: height-->
-    <p> Upload an XLSX file </p>
+    <p> Upload the XLSX file of the Professional Life survey</p>
     <input type="file" id="fileInput" accept=".xlsx">
     <button id="upload" onclick="return analyze()">Upload</button>
     <div id="output"></div>
@@ -212,7 +212,7 @@
 
     <h3 class="red">After Life Survey - Analysis</h3>
     <!-- Qualitative: religion, Quantitative: ???, Quantitative Continuous: ???-->
-    <p> Upload an XLSX file </p>
+    <p> Upload the XLSX file of the After Life survey</p>
     <input type="file" id="fileInput2" accept=".xlsx">
     <button id="upload2" onclick="return analyze2()">Upload</button>
     <div id="output2"></div>
@@ -260,6 +260,36 @@
 
                 // Display the frequency distributions on the page
                 displayResults2(answersFreq, answersRelFreq, answersPercFreq);
+
+                // Access the values of the column "Reincarnation in anything yes/no"
+                var reincarnation = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Reincarnation in anything yes/no"] !== undefined) {
+                        reincarnation.push(xlData[i]["Reincarnation in anything yes/no"].toLowerCase());
+                    }
+                }
+
+                // Compute the joint probability distribution between answers and reincarnation
+                var jointProb = {};
+                for (var i = 0; i < answers.length; i++) {
+                    if (jointProb[answers[i]] == undefined) {
+                        jointProb[answers[i]] = {};
+                    }
+                    if (jointProb[answers[i]][reincarnation[i]] == undefined) {
+                        jointProb[answers[i]][reincarnation[i]] = 1;
+                    } else {
+                        jointProb[answers[i]][reincarnation[i]]++;
+                    }
+                }
+
+                for (var answer in jointProb) {
+                    for (var reinc in jointProb[answer]) {
+                        jointProb[answer][reinc] /= answers.length;
+                        jointProb[answer][reinc] *= 100;
+                    }
+                }
+
+                displayJointProbability2(jointProb);
             };
             reader.readAsBinaryString(file);  
         }
@@ -272,6 +302,16 @@
             resultsDiv.innerHTML += "<h4>Religious yes/no:</h4>";
             for (var answer in answersFreq) {
                 resultsDiv.innerHTML += answer + ": " + answersFreq[answer] + " (" + answersRelFreq[answer].toFixed(2) + " or " + answersPercFreq[answer].toFixed(2) + "%)" + "<br>";
+            }
+        }
+
+        function displayJointProbability2(jointProb) {
+            var resultsDiv = document.getElementById("jointResults");
+            resultsDiv.innerHTML += "<h4>Joint Probability Distribution:</h4>";
+            for (var answer in jointProb) {
+                for (var reinc in jointProb[answer]) {
+                    resultsDiv.innerHTML += answer + " and " + reinc + ": " + jointProb[answer][reinc].toFixed(2) + "%<br>";
+                }
             }
         }
     </script>
