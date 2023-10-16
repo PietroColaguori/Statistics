@@ -1,56 +1,57 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv='cache-control' content='no-cache'> 
-        <meta http-equiv='expires' content='0'> 
-        <meta http-equiv='pragma' content='no-cache'>
-        <title>Homework 2</title>
-        <link rel="stylesheet" href="../style.css">
-        <link rel="stylesheet" href="../prism.css"> 
-    </head>
-    <body>
-        <!-- For this HW we are going to need AJAX -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+<head>
+    <meta http-equiv='cache-control' content='no-cache'> 
+    <meta http-equiv='expires' content='0'> 
+    <meta http-equiv='pragma' content='no-cache'>
+    <title>Homework 2</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../prism.css"> 
+</head>
+<body>
+    <!-- For this HW we are going to need AJAX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
 
-        <h1>Homework 2</h1>
-        <h2>Author: Pietro Colaguori 1936709</h2>
-        <a href="../index.html">Home</a>
-        <hr>
-        <p>The request is as follows:</p><br>
-        <pre class=" question">Choose 3 variables from our surveys:
-            - one Qualitative
-            - one Quantitative discrete
-            - one Quantitative continuous (use class intervals in this case, obviously)
-            
-            create the most efficient algorithms to compute the frequency (absolute/relative/percentage) distribution of:
-            
-            - the 3 variables
-            - the joint distribution of 2 variables (use a general logic, where variables could be any number).
-            
-            Double check/compare the results using some DBMS functionalities you prefer (eg., access, oracle online, postgres, ...)</pre>
+    <h1>Homework 2</h1>
+    <h2>Author: Pietro Colaguori 1936709</h2>
+    <a href="../index.html">Home</a>
+    <hr>
+    <p>The request is as follows:</p><br>
+    <pre class="question">Choose 3 variables from our surveys:
+        - one Qualitative
+        - one Quantitative discrete
+        - one Quantitative continuous (use class intervals in this case, obviously)
         
-        <h3 class="red">Professional Life Survey - Analysis</h3>
-        <!-- Qualitative: expected work sector, Quantitative: expected salary, Quantitative Continous: height-->
-        <p> Upload a XLSX file </p>
-        <input type="file" id="fileInput" accept=".xlsx">
-        <button id="upload" onclick="return analyze()">Upload</button>
-        <div id="output"></div>
+        create the most efficient algorithms to compute the frequency (absolute/relative/percentage) distribution of:
+        
+        - the 3 variables
+        - the joint distribution of 2 variables (use a general logic, where variables could be any number).
+        
+        Double check/compare the results using some DBMS functionalities you prefer (eg., access, oracle online, postgres, ...)</pre>
 
-        <script>
-        function analyze() {
-            // Access contents of XLSX file
-            var file = document.getElementById("fileInput").files[0];
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var data = e.target.result;
-                var workbook = XLSX.read(data, {type: 'binary'});
-                var sheet_name_list = workbook.SheetNames;
-                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-                console.log(xlData);
-            };
-            reader.readAsBinaryString(file);
-            
+    <h3 class="red">Professional Life Survey - Analysis</h3>
+    <!-- Qualitative: expected work sector, Quantitative: expected salary, Quantitative Continuous: height-->
+    <p> Upload an XLSX file </p>
+    <input type="file" id="fileInput" accept=".xlsx">
+    <button id="upload" onclick="return analyze()">Upload</button>
+    <div id="output"></div>
+    
+    <div id="results">
+        <!-- Frequency distributions will be displayed here -->
+    </div>
+
+    <script>
+    function analyze() {
+        // Access contents of XLSX file
+        var file = document.getElementById("fileInput").files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var data = e.target.result;
+            var workbook = XLSX.read(data, {type: 'binary'});
+            var sheet_name_list = workbook.SheetNames;
+            var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+
             // Access the values of the column "expected work sectors"
             var workSectors = [];
             for (var i = 0; i < xlData.length; i++) {
@@ -78,7 +79,6 @@
                     workSectorsFreq[workSectors[i]]++;
                 }
             }
-            console.log(workSectorsFreq);
 
             var expectedSalaryFreq = {};
             for (var i = 0; i < expectedSalary.length; i++) {
@@ -88,7 +88,6 @@
                     expectedSalaryFreq[expectedSalary[i]]++;
                 }
             }
-            console.log(expectedSalaryFreq);
 
             var heightFreq = {};
             for (var i = 0; i < height.length; i++) {
@@ -98,10 +97,35 @@
                     heightFreq[height[i]]++;
                 }
             }
-            console.log(heightFreq);
-            
-        }
-        </script>
 
-    </body>
+            // Display the frequency distributions on the page
+            displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq);
+        };
+        reader.readAsBinaryString(file);
+    }
+
+    function displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq) {
+        var resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
+        
+        // Display the frequency distribution for the "Expected work sectors" variable
+        resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
+        for (var sector in workSectorsFreq) {
+            resultsDiv.innerHTML += sector + ": " + workSectorsFreq[sector] + "<br>";
+        }
+
+        // Display the frequency distribution for the "Expected salary" variable
+        resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
+        for (var salary in expectedSalaryFreq) {
+            resultsDiv.innerHTML += salary + ": " + expectedSalaryFreq[salary] + "<br>";
+        }
+
+        // Display the frequency distribution for the "Height" variable
+        resultsDiv.innerHTML += "<h4>Height:</h4>";
+        for (var h in heightFreq) {
+            resultsDiv.innerHTML += h + ": " + heightFreq[h] + "<br>";
+        }
+    }
+    </script>
+</body>
 </html>
