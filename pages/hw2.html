@@ -38,44 +38,69 @@
         <div id="output"></div>
 
         <script>
-            function analyze() {
-                const fileInput = document.getElementById('fileInput');
-                const output = document.getElementById('output');
-
-                const reader = new FileReader();
-                reader.readAsBinaryString(fileInput.files[0]);
-                reader.onload = function(e) {
-                    const data = e.target.result;
-                    const workbook = XLSX.read(data, {type: 'binary'});
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-
-                    const workSectors = XLSX.utils.sheet_to_json(sheet, {header: 1})[0];
-                    const workSectorsCounts = {};
-                    const totalWorkSectors = workSectors.length - 1;
-
-                    for (let i = 1; i < workSectors.length; i++) {
-                        const sector = workSectors[i];
-                        if (workSectorsCounts[sector]) {
-                            workSectorsCounts[sector]++;
-                        } else {
-                            workSectorsCounts[sector] = 1;
-                        }
-                    }
-
-                    let table = '<table><tr><th>Work Sector</th><th>Absolute Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>';
-                    for (const sector in workSectorsCounts) {
-                        const absoluteFrequency = workSectorsCounts[sector];
-                        const relativeFrequency = absoluteFrequency / totalWorkSectors;
-                        const percentageFrequency = relativeFrequency * 100;
-                        table += `<tr><td>${sector}</td><td>${absoluteFrequency}</td><td>${relativeFrequency.toFixed(2)}</td><td>${percentageFrequency.toFixed(2)}%</td></tr>`;
-                    }
-                    table += '</table>';
-
-                    output.innerHTML = table;
-                }
-                return false;
+        function analyze() {
+            // Access contents of XLSX file
+            var file = document.getElementById("fileInput").files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, {type: 'binary'});
+                var sheet_name_list = workbook.SheetNames;
+                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+                console.log(xlData);
+            };
+            reader.readAsBinaryString(file);
+            
+            // Access the values of the column "expected work sectors"
+            var workSectors = [];
+            for (var i = 0; i < xlData.length; i++) {
+                workSectors.push(xlData[i]["Expected work sectors"]);
             }
+
+            // Access the values of the column "expected salary"
+            var expectedSalary = [];
+            for (var i = 0; i < xlData.length; i++) {
+                expectedSalary.push(xlData[i]["Expected salary"]);
+            }
+
+            // Access the values of the column "height"
+            var height = [];
+            for (var i = 0; i < xlData.length; i++) {
+                height.push(xlData[i]["Height"]);
+            }
+
+            // Compute the frequency distribution of the 3 variables
+            var workSectorsFreq = {};
+            for (var i = 0; i < workSectors.length; i++) {
+                if (workSectorsFreq[workSectors[i]] == undefined) {
+                    workSectorsFreq[workSectors[i]] = 1;
+                } else {
+                    workSectorsFreq[workSectors[i]]++;
+                }
+            }
+            console.log(workSectorsFreq);
+
+            var expectedSalaryFreq = {};
+            for (var i = 0; i < expectedSalary.length; i++) {
+                if (expectedSalaryFreq[expectedSalary[i]] == undefined) {
+                    expectedSalaryFreq[expectedSalary[i]] = 1;
+                } else {
+                    expectedSalaryFreq[expectedSalary[i]]++;
+                }
+            }
+            console.log(expectedSalaryFreq);
+
+            var heightFreq = {};
+            for (var i = 0; i < height.length; i++) {
+                if (heightFreq[height[i]] == undefined) {
+                    heightFreq[height[i]] = 1;
+                } else {
+                    heightFreq[height[i]]++;
+                }
+            }
+            console.log(heightFreq);
+            
+        }
         </script>
 
     </body>
