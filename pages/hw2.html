@@ -350,7 +350,6 @@ Play with N and k values and draw some conclusion on the "shape" of the distribu
     <input type="number" id="k" placeholder="k">
     <button id="generate" onclick="return generate()">Generate</button>
     <div id="output3"></div>
-    <canvas id="myChart" width="400" height="200"></canvas>
 
     <script>
             function generate() {
@@ -381,31 +380,41 @@ Play with N and k values and draw some conclusion on the "shape" of the distribu
                     output.innerHTML += "[" + classIntervals[i][0] + ", " + classIntervals[i][1] + "): " + classFreq[i] + "<br>";
                 }
                 
-                // Create a histogram using Chart.js library
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: classIntervals.map(interval => "[" + interval[0] + ", " + interval[1] + ")"),
-                        datasets: [{
-                            label: 'Frequency',
-                            data: Object.values(classFreq),
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
+                 // Generate N random variates in [0, 1)
+                const randomVariates = Array.from({ length: N }, () => Math.random());
+
+        // Calculate the histogram
+        const binEdges = Array.from({ length: k + 1 }, (_, i) => (i / k));
+        const histogram = Array.from({ length: k }, (_, i) => {
+            const lowerBound = binEdges[i];
+            const upperBound = binEdges[i + 1];
+            return randomVariates.filter(value => value >= lowerBound && value < upperBound).length / N;
+        });
+
+        // Display the histogram using Chart.js
+        const ctx = document.getElementById('histogram').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: binEdges.slice(0, k),
+                datasets: [{
+                    label: 'Frequency',
+                    data: histogram,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        beginAtZero: true
                     },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true
-                                }
-                            }]
-                        }
+                    y: {
+                        beginAtZero: true
                     }
-                });
+                }
             }
+        });
+        }
         </script>
         <canvas id="myChart"></canvas>
 
