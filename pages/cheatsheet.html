@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='cache-control' content='no-cache'> 
+        <meta http-equiv='expires' content='0'> 
+        <meta http-equiv='pragma' content='no-cache'>
+        <title>JS Cheatsheet</title>
+        <link rel="stylesheet" href="../style.css">
+        <link rel="stylesheet" href="../prism.css"> 
+    </head>
+    <body>
+        <h1>JS Cheatsheet</h1>
+        <pre><code class="language-javascript">
+            // For each DS, show how to create, add, remove, and iterate over it
+            // Array 
+            let arr = [1, 2, 3, 4, 5];
+            arr.push(6);
+            arr.pop();
+            for (let i = 0; i < arr.length; i++) {
+                console.log(arr[i]);
+            }
+            // Object
+            let obj = {
+                name: "John",
+                age: 30,
+                city: "New York"
+            };
+            obj["job"] = "Programmer";
+            delete obj.city;
+            for (let key in obj) {
+                console.log(obj[key]);
+            }
+            // Set
+            let set = new Set();
+            set.add(1);
+            set.add(2);
+            set.add(3);
+            set.add(4);
+            set.add(5);
+            set.add(6);
+            set.delete(6);
+            for (let item of set) {
+                console.log(item);
+            }
+            // Map
+            let map = new Map();
+            map.set("name", "John");
+            map.set("age", 30);
+            map.set("city", "New York");
+            map.set("job", "Programmer");
+            map.delete("city");
+            for (let [key, value] of map) {
+                console.log(value);
+            }
+            // Stack
+            let stack = [];
+            stack.push(1);
+            stack.push(2);
+            stack.push(3);
+            stack.push(4);
+            stack.push(5);
+            stack.push(6);
+            stack.pop();
+            for (let i = stack.length - 1; i >= 0; i--) {
+                console.log(stack[i]);
+            }
+            // Queue
+            let queue = [];
+            queue.push(1);
+            queue.push(2);
+            queue.push(3);
+            queue.push(4);
+            queue.push(5);
+            queue.push(6);
+            queue.shift();
+            for (let i = 0; i < queue.length; i++) {
+                console.log(queue[i]);
+            }
+            // Linked List
+            class Node {
+                constructor(data) {
+                    this.data = data;
+                    this.next = null;
+                }
+            }
+            class LinkedList {
+                constructor() {
+                    this.head = null;
+                    this.size = 0;
+                }
+                add(data) {
+                    let node = new Node(data);
+                    let current;
+                    if (this.head == null) {
+                        this.head = node;
+                    } else {
+                        current = this.head;
+                        while (current.next) {
+                            current = current.next;
+                        }
+                        current.next = node;
+                    }
+                    this.size++;
+                }
+                remove(data) {
+                    let current = this.head;
+                    let prev = null;
+                    while (current != null) {
+                        if (current.data === data) {
+                            if (prev == null) {
+                                this.head = current.next;
+                            } else {
+                                prev.next = current.next;
+                            }
+                            this.size--;
+                            return current.data;
+                        }
+                        prev = current;
+                        current = current.next;
+                    }
+                    return -1;
+                }
+                print() {
+                    let current = this.head;
+                    while (current) {
+                        console.log(current.data);
+                        current = current.next;
+                    }
+                }
+            }
+            let list = new LinkedList();
+            list.add(1);
+            list.add(2);
+            list.add(3);
+            list.add(4);
+            list.add(5);
+            list.add(6);
+            list.remove(6);
+            list.print();
+        </code></pre>
+        <script src="../prism.js"></script>
+    </body>
+</html>
+
