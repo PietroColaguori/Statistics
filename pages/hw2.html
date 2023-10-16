@@ -41,32 +41,23 @@
         <!-- Frequency distributions will be displayed here -->
     </div>
 
-    <script>
-        function analyze() {
-            // Access contents of XLSX file
+    <script type="text/javascript">
+        function processExcel() {
             var file = document.getElementById("fileInput").files[0];
             var reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 var data = e.target.result;
-                var workbook = XLSX.read(data, {type: 'binary'});
-                var sheet_name_list = workbook.SheetNames;
-                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-        
-                // Access the values of the column "expected work sectors"
+                var workbook = XLSX.read(data, { type: 'binary' });
+                var sheetName = workbook.SheetNames[0];
+                var xlData = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+
+                // Extract the 3 variables from the Excel file
                 var workSectors = [];
-                for (var i = 0; i < xlData.length; i++) {
-                    workSectors.push(xlData[i]["Expected work sectors"]);
-                }
-        
-                // Access the values of the column "expected salary"
                 var expectedSalary = [];
-                for (var i = 0; i < xlData.length; i++) {
-                    expectedSalary.push(xlData[i]["Expected net remuneration (monthly)"]);
-                }
-        
-                // Access the values of the column "height"
                 var height = [];
                 for (var i = 0; i < xlData.length; i++) {
+                    workSectors.push(xlData[i]["Expected work sectors"]);
+                    expectedSalary.push(xlData[i]["Expected salary"]);
                     height.push(xlData[i]["height"]);
                 }
         
@@ -142,22 +133,31 @@
             
             // Display the frequency distribution for the "Expected work sectors" variable
             resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
+            resultsDiv.innerHTML += "<table>";
+            resultsDiv.innerHTML += "<tr><th>Work Sector</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
             for (var sector in workSectorsFreq) {
-                resultsDiv.innerHTML += sector + ": " + workSectorsFreq[sector] + " (" + workSectorsRelFreq[sector].toFixed(2) + " or " + workSectorsPercFreq[sector].toFixed(2) + "%)" + "<br>";
+                resultsDiv.innerHTML += "<tr><td>" + sector + "</td><td>" + workSectorsFreq[sector] + "</td><td>" + workSectorsRelFreq[sector].toFixed(2) + "</td><td>" + workSectorsPercFreq[sector].toFixed(2) + "%</td></tr>";
             }
+            resultsDiv.innerHTML += "</table>";
         
             // Display the frequency distribution for the "Expected salary" variable
             resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
+            resultsDiv.innerHTML += "<table>";
+            resultsDiv.innerHTML += "<tr><th>Salary</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
             for (var salary in expectedSalaryFreq) {
-                resultsDiv.innerHTML += salary + ": " + expectedSalaryFreq[salary] + " (" + expectedSalaryRelFreq[salary].toFixed(2) + " or " + expectedSalaryPercFreq[salary].toFixed(2) + "%)" + "<br>";
+                resultsDiv.innerHTML += "<tr><td>" + salary + "</td><td>" + expectedSalaryFreq[salary] + "</td><td>" + expectedSalaryRelFreq[salary].toFixed(2) + "</td><td>" + expectedSalaryPercFreq[salary].toFixed(2) + "%</td></tr>";
             }
+            resultsDiv.innerHTML += "</table>";
         
             // Display the frequency distribution for the "Height" variable
             resultsDiv.innerHTML += "<h4>Height:</h4>";
+            resultsDiv.innerHTML += "<table>";
+            resultsDiv.innerHTML += "<tr><th>Height</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
             for (var h in heightFreq) {
-                resultsDiv.innerHTML += h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + " or " + heightPercFreq[h].toFixed(2) + "%)" + "<br>";
+                resultsDiv.innerHTML += "<tr><td>" + h + "</td><td>" + heightFreq[h] + "</td><td>" + heightRelFreq[h].toFixed(2) + "</td><td>" + heightPercFreq[h].toFixed(2) + "%</td></tr>";
             }
+            resultsDiv.innerHTML += "</table>";
         }
-        </script>
+    </script>
 </body>
 </html>
