@@ -41,127 +41,91 @@
         <!-- Frequency distributions will be displayed here -->
     </div>
 
-    <script type="text/javascript">
-        function processExcel() {
-            var file = document.getElementById("fileInput").files[0];
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                var data = e.target.result;
-                var workbook = XLSX.read(data, { type: 'binary' });
-                var sheetName = workbook.SheetNames[0];
-                var xlData = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+    <script>
+    function analyze() {
+        // Access contents of XLSX file
+        var file = document.getElementById("fileInput").files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var data = e.target.result;
+            var workbook = XLSX.read(data, {type: 'binary'});
+            var sheet_name_list = workbook.SheetNames;
+            var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
 
-                // Extract the 3 variables from the Excel file
-                var workSectors = [];
-                var expectedSalary = [];
-                var height = [];
-                for (var i = 0; i < xlData.length; i++) {
-                    var sector = xlData[i]["Expected work sectors"];
-                    var salary = xlData[i]["Expected net remuneration (monthly)"];
-                    var h = xlData[i]["height"];
+            // Access the values of the column "expected work sectors"
+            var workSectors = [];
+            for (var i = 0; i < xlData.length; i++) {
+                workSectors.push(xlData[i]["Expected work sectors"]);
+            }
 
-                    // Check if any of the values are empty and skip the row
-                    if (sector !== undefined && salary !== undefined && h !== undefined) {
-                        workSectors.push(sector);
-                        expectedSalary.push(salary);
-                        height.push(h);
-                    }
-                }
+            // Access the values of the column "expected salary"
+            var expectedSalary = [];
+            for (var i = 0; i < xlData.length; i++) {
+                expectedSalary.push(xlData[i]["Expected salary"]);
+            }
 
-                // Compute the frequency distribution of the 3 variables
-                var workSectorsFreq = {};
-                for (var i = 0; i < workSectors.length; i++) {
-                    if (workSectorsFreq[workSectors[i]] == undefined) {
-                        workSectorsFreq[workSectors[i]] = 1;
-                    } else {
-                        workSectorsFreq[workSectors[i]]++;
-                    }
+            // Access the values of the column "height"
+            var height = [];
+            for (var i = 0; i < xlData.length; i++) {
+                height.push(xlData[i]["Height"]);
+            }
+
+            // Compute the frequency distribution of the 3 variables
+            var workSectorsFreq = {};
+            for (var i = 0; i < workSectors.length; i++) {
+                if (workSectorsFreq[workSectors[i]] == undefined) {
+                    workSectorsFreq[workSectors[i]] = 1;
+                } else {
+                    workSectorsFreq[workSectors[i]]++;
                 }
-        
-                var expectedSalaryFreq = {};
-                for (var i = 0; i < expectedSalary.length; i++) {
-                    if (expectedSalaryFreq[expectedSalary[i]] == undefined) {
-                        expectedSalaryFreq[expectedSalary[i]] = 1;
-                    } else {
-                        expectedSalaryFreq[expectedSalary[i]]++;
-                    }
+            }
+
+            var expectedSalaryFreq = {};
+            for (var i = 0; i < expectedSalary.length; i++) {
+                if (expectedSalaryFreq[expectedSalary[i]] == undefined) {
+                    expectedSalaryFreq[expectedSalary[i]] = 1;
+                } else {
+                    expectedSalaryFreq[expectedSalary[i]]++;
                 }
-        
-                var heightFreq = {};
-                for (var i = 0; i < height.length; i++) {
-                    if (heightFreq[height[i]] == undefined) {
-                        heightFreq[height[i]] = 1;
-                    } else {
-                        heightFreq[height[i]]++;
-                    }
+            }
+
+            var heightFreq = {};
+            for (var i = 0; i < height.length; i++) {
+                if (heightFreq[height[i]] == undefined) {
+                    heightFreq[height[i]] = 1;
+                } else {
+                    heightFreq[height[i]]++;
                 }
+            }
+
+            // Display the frequency distributions on the page
+            displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq);
+        };
+        reader.readAsBinaryString(file);
+    }
+
+    function displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq) {
+        var resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
         
-                // Compute the relative frequency distribution of the 3 variables
-                var workSectorsRelFreq = {};
-                for (var sector in workSectorsFreq) {
-                    workSectorsRelFreq[sector] = workSectorsFreq[sector] / workSectors.length;
-                }
-        
-                var expectedSalaryRelFreq = {};
-                for (var salary in expectedSalaryFreq) {
-                    expectedSalaryRelFreq[salary] = expectedSalaryFreq[salary] / expectedSalary.length;
-                }
-        
-                var heightRelFreq = {};
-                for (var h in heightFreq) {
-                    heightRelFreq[h] = heightFreq[h] / height.length;
-                }
-        
-                // Compute the percentage frequency distribution of the 3 variables
-                var workSectorsPercFreq = {};
-                for (var sector in workSectorsFreq) {
-                    workSectorsPercFreq[sector] = workSectorsRelFreq[sector] * 100;
-                }
-        
-                var expectedSalaryPercFreq = {};
-                for (var salary in expectedSalaryFreq) {
-                    expectedSalaryPercFreq[salary] = expectedSalaryRelFreq[salary] * 100;
-                }
-        
-                var heightPercFreq = {};
-                for (var h in heightFreq) {
-                    heightPercFreq[h] = heightRelFreq[h] * 100;
-                }
-        
-                // Display the frequency distributions on the page
-                displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq, workSectorsRelFreq, expectedSalaryRelFreq, heightRelFreq, workSectorsPercFreq, expectedSalaryPercFreq, heightPercFreq);
-            };
-            reader.readAsBinaryString(file);
+        // Display the frequency distribution for the "Expected work sectors" variable
+        resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
+        for (var sector in workSectorsFreq) {
+            resultsDiv.innerHTML += sector + ": " + workSectorsFreq[sector] + "<br>";
         }
-        
-        function displayResults(workSectorsFreq, expectedSalaryFreq, heightFreq, workSectorsRelFreq, expectedSalaryRelFreq, heightRelFreq, workSectorsPercFreq, expectedSalaryPercFreq, heightPercFreq) {
-            var resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
-            
-            // Display the frequency distribution for the "Expected work sectors" variable
-            resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
-            for (var sector in workSectorsFreq) {
-                var sectorDiv = document.createElement("div");
-                sectorDiv.textContent = sector + ": " + workSectorsFreq[sector] + " (" + workSectorsRelFreq[sector].toFixed(2) + ", " + workSectorsPercFreq[sector].toFixed(2) + "%)";
-                resultsDiv.appendChild(sectorDiv);
-            }
 
-            // Display the frequency distribution for the "Expected salary" variable
-            resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
-            for (var salary in expectedSalaryFreq) {
-                var salaryDiv = document.createElement("div");
-                salaryDiv.textContent = salary + ": " + expectedSalaryFreq[salary] + " (" + expectedSalaryRelFreq[salary].toFixed(2) + ", " + expectedSalaryPercFreq[salary].toFixed(2) + "%)";
-                resultsDiv.appendChild(salaryDiv);
-            }
-
-            // Display the frequency distribution for the "Height" variable
-            resultsDiv.innerHTML += "<h4>Height:</h4>";
-            for (var h in heightFreq) {
-                var heightDiv = document.createElement("div");
-                heightDiv.textContent = h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + ", " + heightPercFreq[h].toFixed(2) + "%)";
-                resultsDiv.appendChild(heightDiv);
-            }
+        // Display the frequency distribution for the "Expected salary" variable
+        resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
+        for (var salary in expectedSalaryFreq) {
+            resultsDiv.innerHTML += salary + ": " + expectedSalaryFreq[salary] + "<br>";
         }
+
+        // Display the frequency distribution for the "Height" variable
+        resultsDiv.innerHTML += "<h4>Height:</h4>";
+        for (var h in heightFreq) {
+            resultsDiv.innerHTML += h + ": " + heightFreq[h] + "<br>";
+        }
+    }
     </script>
 </body>
 </html>
