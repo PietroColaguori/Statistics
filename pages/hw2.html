@@ -9,10 +9,15 @@
         <link rel="stylesheet" href="../prism.css"> 
     </head>
     <body>
+        <!-- For this HW we are going to need AJAX -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+
         <h1>Homework 2</h1>
         <h2>Author: Pietro Colaguori 1936709</h2>
         <a href="../index.html">Home</a>
         <hr>
+        <p>The request is as follows:</p><br>
         <pre class=" question">Choose 3 variables from our surveys:
             - one Qualitative
             - one Quantitative discrete
@@ -24,7 +29,54 @@
             - the joint distribution of 2 variables (use a general logic, where variables could be any number).
             
             Double check/compare the results using some DBMS functionalities you prefer (eg., access, oracle online, postgres, ...)</pre>
-        <h3 class="red">After Life Survey - Analysis</h3>
+        
+        <h3 class="red">Professional Life Survey - Analysis</h3>
+        <!-- Qualitative: expected work sector, Quantitative: expected salary, Quantitative Continous: height-->
+        <p> Upload a XLSX file </p>
+        <input type="file" id="fileInput" accept=".xlsx">
+        <button id="upload" onclick="return analyze()">Upload</button>
+        <div id="output"></div>
+
+        <script>
+            function analyze() {
+                const fileInput = document.getElementById('fileInput');
+                const output = document.getElementById('output');
+
+                const reader = new FileReader();
+                reader.readAsBinaryString(fileInput.files[0]);
+                reader.onload = function(e) {
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, {type: 'binary'});
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+
+                    const workSectors = XLSX.utils.sheet_to_json(sheet, {header: 1})[0];
+                    const workSectorsCounts = {};
+                    const totalWorkSectors = workSectors.length - 1;
+
+                    for (let i = 1; i < workSectors.length; i++) {
+                        const sector = workSectors[i];
+                        if (workSectorsCounts[sector]) {
+                            workSectorsCounts[sector]++;
+                        } else {
+                            workSectorsCounts[sector] = 1;
+                        }
+                    }
+
+                    let table = '<table><tr><th>Work Sector</th><th>Absolute Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>';
+                    for (const sector in workSectorsCounts) {
+                        const absoluteFrequency = workSectorsCounts[sector];
+                        const relativeFrequency = absoluteFrequency / totalWorkSectors;
+                        const percentageFrequency = relativeFrequency * 100;
+                        table += `<tr><td>${sector}</td><td>${absoluteFrequency}</td><td>${relativeFrequency.toFixed(2)}</td><td>${percentageFrequency.toFixed(2)}%</td></tr>`;
+                    }
+                    table += '</table>';
+
+                    output.innerHTML = table;
+                }
+                return false;
+            }
+        </script>
 
     </body>
 </html>
