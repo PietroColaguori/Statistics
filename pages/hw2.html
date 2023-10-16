@@ -32,196 +32,94 @@
 
     <h3 class="red">Professional Life Survey - Analysis</h3>
     <!-- Qualitative: expected work sector, Quantitative: expected salary, Quantitative Continuous: height-->
-    <p> Upload an XLSX file </p>
+    <p> Upload the first XLSX file </p>
     <input type="file" id="fileInput" accept=".xlsx">
     <button id="upload" onclick="return analyze()">Upload</button>
+    
+    <p> Upload the second XLSX file </p>
+    <input type="file" id="fileInput2" accept=".xlsx">
+    <button id="upload2" onclick="return analyze2()">Upload</button>
+    
     <div id="output"></div>
     
     <div id="results">
-        <!-- Frequency distributions will be displayed here -->
+        <!-- Frequency distributions will be displayed here for the first XLSX file -->
     </div>
 
-    <script>
-        function analyze() {
-            // Access contents of XLSX file
-            var file = document.getElementById("fileInput").files[0];
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var data = e.target.result;
-                var workbook = XLSX.read(data, {type: 'binary'});
-                var sheet_name_list = workbook.SheetNames;
-                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {blankrows: false});
-                
-                // Access the values of the column "expected work sectors"
-                var workSectors = [];
-                for (var i = 0; i < xlData.length; i++) {
-                    if (xlData[i]["Expected work sectors"] !== undefined) {
-                        workSectors.push(xlData[i]["Expected work sectors"]);
-                    }
-                }
-        
-                // Access the values of the column "expected salary"
-                var expectedSalary = [];
-                for (var i = 0; i < xlData.length; i++) {
-                    if (xlData[i]["Expected net remuneration (monthly)"] !== undefined) {
-                        expectedSalary.push(xlData[i]["Expected net remuneration (monthly)"]);
-                    }
-                }
-        
-                // Access the values of the column "height"
-                var height = [];
-                for (var i = 0; i < xlData.length; i++) {
-                    if (xlData[i]["height"] !== undefined) {
-                        height.push(xlData[i]["height"]);
-                    }
-                }
-        
-                // Compute the frequency distribution of the 3 variables
-                var workSectorsFreq = {};
-                for (var i = 0; i < workSectors.length; i++) {
-                    if (workSectorsFreq[workSectors[i]] == undefined) {
-                        workSectorsFreq[workSectors[i]] = 1;
-                    } else {
-                        workSectorsFreq[workSectors[i]]++;
-                    }
-                }
-        
-                var expectedSalaryFreq = {};
-                for (var i = 0; i < expectedSalary.length; i++) {
-                    if (expectedSalaryFreq[expectedSalary[i]] == undefined) {
-                        expectedSalaryFreq[expectedSalary[i]] = 1;
-                    } else {
-                        expectedSalaryFreq[expectedSalary[i]]++;
-                    }
-                }
-        
-                var heightFreq = {};
-                for (var i = 0; i < height.length; i++) {
-                    if (heightFreq[height[i]] == undefined) {
-                        heightFreq[height[i]] = 1;
-                    } else {
-                        heightFreq[height[i]]++;
-                    }
-                }
-        
-                // Compute the relative and percentage frequencies of the 3 variables
-                var workSectorsRelFreq = {};
-                var workSectorsPercFreq = {};
-                for (var sector in workSectorsFreq) {
-                    workSectorsRelFreq[sector] = workSectorsFreq[sector] / workSectors.length;
-                    workSectorsPercFreq[sector] = workSectorsRelFreq[sector] * 100;
-                }
-        
-                var expectedSalaryRelFreq = {};
-                var expectedSalaryPercFreq = {};
-                for (var salary in expectedSalaryFreq) {
-                    expectedSalaryRelFreq[salary] = expectedSalaryFreq[salary] / expectedSalary.length;
-                    expectedSalaryPercFreq[salary] = expectedSalaryRelFreq[salary] * 100;
-                }
-        
-                var heightRelFreq = {};
-                var heightPercFreq = {};
-                for (var h in heightFreq) {
-                    heightRelFreq[h] = heightFreq[h] / height.length;
-                    heightPercFreq[h] = heightRelFreq[h] * 100;
-                }
-        
-                // Display the frequency distributions on the page
-                displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq);
-            };
-            reader.readAsBinaryString(file);
-        }
-        
-        function displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq) {
-            var resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
-            
-            // Display the frequency distribution for the "Expected work sectors" variable
-            resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
-            for (var sector in workSectorsFreq) {
-                resultsDiv.innerHTML += sector + ": " + workSectorsFreq[sector] + " (" + workSectorsRelFreq[sector].toFixed(2) + " or " + workSectorsPercFreq[sector].toFixed(2) + "%)" + "<br>";
-            }
-        
-            // Display the frequency distribution for the "Expected salary" variable
-            resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
-            for (var salary in expectedSalaryFreq) {
-                resultsDiv.innerHTML += salary + ": " + expectedSalaryFreq[salary] + " (" + expectedSalaryRelFreq[salary].toFixed(2) + " or " + expectedSalaryPercFreq[salary].toFixed(2) + "%)" + "<br>";
-            }
-        
-            // Display the frequency distribution for the "Height" variable
-            resultsDiv.innerHTML += "<h4>Height:</h4>";
-            for (var h in heightFreq) {
-                resultsDiv.innerHTML += h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + " or " + heightPercFreq[h].toFixed(2) + "%)" + "<br>";
-            }
-        }
-    </script>
-
-    <h3 class="red">Afterlife Survey - Analysis</h3>
-    <!-- Qualitative: religion, Quantitative: ???, Quantitative Continuous: ???-->
-    <p> Upload an XLSX file </p>
-    <input type="file" id="fileInput2" accept=".xlsx">
-    <button id="upload2" onclick="return analyze2()">Upload</button>
-    <div id="output2"></div>
-    
     <div id="results2">
-        <!-- Frequency distributions will be displayed here -->
+        <!-- Frequency distributions will be displayed here for the second XLSX file -->
     </div>
 
-    <script>
-        function analyze2() {
-            // Access contents of XLSX file
-            var file = document.getElementById("fileInput2").files[0];
+    <script type="text/javascript">
+        function processExcel(fileInputId, resultsDivId, columnName) {
+            var fileInput = document.getElementById(fileInputId);
+            var file = fileInput.files[0];
             var reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 var data = e.target.result;
-                var workbook = XLSX.read(data, {type: 'binary'});
-                var sheet_name_list = workbook.SheetNames;
-                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {blankrows: false});
-                
-                // Access the values of the column "Religious yes/no"
-                var religious = [];
+                var workbook = XLSX.read(data, { type: 'binary' });
+                var sheetName = workbook.SheetNames[0];
+                var xlData = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+
+                // Extract the specified column from the Excel file
+                var columnData = [];
                 for (var i = 0; i < xlData.length; i++) {
-                    if (xlData[i]["Religious yes/no"] !== undefined) {
-                        religious.push(xlData[i]["Religious yes/no"].toLowerCase());
+                    var cellValue = xlData[i][columnName];
+
+                    // Check if the value is not empty and skip the row if it is
+                    if (cellValue !== undefined) {
+                        columnData.push(cellValue);
                     }
                 }
-        
-                // Compute the frequency distribution of the 3 variables
-                var religiousFreq = {};
-                for (var i = 0; i < religious.length; i++) {
-                    if (religiousFreq[religious[i]] == undefined) {
-                        religiousFreq[religious[i]] = 1;
+
+                // Compute the frequency distribution of the specified column
+                var columnFreq = {};
+                for (var i = 0; i < columnData.length; i++) {
+                    if (columnFreq[columnData[i]] == undefined) {
+                        columnFreq[columnData[i]] = 1;
                     } else {
-                        workSectorsFreq[religious[i]]++;
+                        columnFreq[columnData[i]]++;
                     }
                 }
-        
-                // Compute the relative and percentage frequencies of the 3 variables
-                var religousRelFreq = {};
-                var religiousPercFreq = {};
-                for (var relogiousAnsw in religiousFreq) {
-                    religiousRelFreq[relogiousAnsw] = religiousFreq[relogiousAnsw] / religious.length;
-                    religiousPercFreq[relogiousAnsw] = religousRelFreq[relogiousAnsw] * 100;
+
+                // Compute the relative frequency distribution of the specified column
+                var columnRelFreq = {};
+                for (var value in columnFreq) {
+                    columnRelFreq[value] = columnFreq[value] / columnData.length;
                 }
-        
+
+                // Compute the percentage frequency distribution of the specified column
+                var columnPercFreq = {};
+                for (var value in columnFreq) {
+                    columnPercFreq[value] = columnRelFreq[value] * 100;
+                }
+
                 // Display the frequency distributions on the page
-                displayResults2(religiousFreq, religousRelFreq, religiousPercFreq);
+                displayResults(resultsDivId, columnFreq, columnRelFreq, columnPercFreq);
             };
             reader.readAsBinaryString(file);
         }
+
+        function analyze() {
+            processExcel("fileInput", "results", "Expected work sectors");
+        }
+
+        function analyze2() {
+            processExcel("fileInput2", "results2", "Religious yes/no");
+        }
         
-        function displayResults2(religiousFreq, religousRelFreq, religiousPercFreq) {
-            var resultsDiv = document.getElementById("results2");
+        function displayResults(resultsDivId, columnFreq, columnRelFreq, columnPercFreq) {
+            var resultsDiv = document.getElementById(resultsDivId);
             resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
             
-            // Display the frequency distribution for the "Expected work sectors" variable
-            resultsDiv.innerHTML += "<h4>Religious [yes/no]:</h4>";
-            for (var relogiousAnsw in religiousFreq) {
-                resultsDiv.innerHTML += relogiousAnsw + ": " + religiousFreq[relogiousAnsw] + " (" + religousRelFreq[relogiousAnsw].toFixed(2) + " or " + religiousPercFreq[relogiousAnsw].toFixed(2) + "%)" + "<br>";
+            resultsDiv.innerHTML += "<h4>Column:</h4>";
+            resultsDiv.innerHTML += "<table>";
+            resultsDiv.innerHTML += "<tr><th>Value</th><th>Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>";
+            for (var value in columnFreq) {
+                resultsDiv.innerHTML += "<tr><td>" + value + "</td><td>" + columnFreq[value] + "</td><td>" + columnRelFreq[value].toFixed(2) + "</td><td>" + columnPercFreq[value].toFixed(2) + "%</td></tr>";
             }
+            resultsDiv.innerHTML += "</table>";
         }
     </script>
-
-    <script src="../prism.js"></script>
 </body>
 </html>
