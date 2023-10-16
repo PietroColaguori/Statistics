@@ -11,15 +11,30 @@
     <body>
         <h1>JS Cheatsheet</h1>
         <pre><code class="language-javascript">
+            // Loops: break and continue 
+            for (let i = 0; i < 10; i++) {
+                if (i == 5) {
+                    break;  // interrupts execution of the loop
+                }
+                console.log(i);
+            }
+
+            for (let i = 0; i < 10; i++) {
+                if (i == 5) {
+                    continue;  // skips the current iteration of the loop
+                }
+                console.log(i);
+            }
+
             // For each DS, show how to create, add, remove, and iterate over it
-            // Array 
+            // Array (equivalent to a list)
             let arr = [1, 2, 3, 4, 5];
             arr.push(6);
             arr.pop();
             for (let i = 0; i < arr.length; i++) {
                 console.log(arr[i]);
             }
-            // Object
+            // Object (behaves similarly to a dictionary)
             let obj = {
                 name: "John",
                 age: 30,
