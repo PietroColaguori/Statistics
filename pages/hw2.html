@@ -168,7 +168,58 @@
     </div>
 
     <script>
-        
+        function analyze2() {
+            // Access contents of XLSX file
+            var file = document.getElementById("fileInput2").files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, {type: 'binary'});
+                var sheet_name_list = workbook.SheetNames;
+                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {blankrows: false});
+                
+                // Access the values of the column "Religious yes/no"
+                var answers = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Religious yes/no"] !== undefined) {
+                        answers.push(xlData[i]["Religious yes/no"].lowercase());
+                    }
+                }
+
+                // Compute the frequency distributon of the variable
+                var answersFreq = {};
+                for (var i = 0; i < answers.length; i++) {
+                    if (answersFreq[answers[i]] == undefined) {
+                        answersFreq[answers[i]] = 1;
+                    } else {
+                        answersFreq[answers[i]]++;
+                    }
+                }
+
+                // Compute the relative and percentage frequencies of the variable
+                var answersRelFreq = {};
+                var answersPercFreq = {};
+                for (var answer in answersFreq) {
+                    answersRelFreq[answer] = answersFreq[answer] / answers.length;
+                    answersPercFreq[answer] = answersRelFreq[answer] * 100;
+                }
+
+                // Display the frequency distributions on the page
+                displayResults2(answersFreq, answersRelFreq, answersPercFreq);
+            };
+            reader.readAsBinaryString(file);  
+        }
+
+        function displayResults2(answersFreq, answersRelFreq, answersPercFreq) {
+            var resultsDiv = document.getElementById("results2");
+            resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
+            
+            // Display the frequency distribution for the "Religious yes/no" variable
+            resultsDiv.innerHTML += "<h4>Religious yes/no:</h4>";
+            for (var answer in answersFreq) {
+                resultsDiv.innerHTML += answer + ": " + answersFreq[answer] + " (" + answersRelFreq[answer].toFixed(2) + " or " + answersPercFreq[answer].toFixed(2) + "%)" + "<br>";
+            }
+        }
     </script>
 
     <script src="../prism.js"></script>
