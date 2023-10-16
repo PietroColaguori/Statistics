@@ -352,45 +352,42 @@ Play with N and k values and draw some conclusion on the "shape" of the distribu
     <div id="output3"></div>
 
     <script>
-            function generate() {
-function generate() {
-    var N = document.getElementById("N").value;
-    var k = document.getElementById("k").value;
-    var data = [];
-    var intervalSize = 1 / k;
-    var histogramData = new Array(k).fill(0);
+        function generate() {
+            var N = document.getElementById("N").value;
+            var k = document.getElementById("k").value;
+            var data = [];
+            var intervalSize = 1 / k;
+            var histogramData = new Array(k).fill(0);
 
-    // Generate N uniform random variates in [0,1)
-    for (var i = 0; i < N; i++) {
-        data.push(Math.random());
-    }
+            // Generate N uniform random variates in [0,1)
+            for (var i = 0; i < N; i++) {
+                data.push(Math.random());
+            }
 
-    // Determine the distribution into class intervals [i/k, (i+1)/k), i = 0,..., k-1
-    for (var i = 0; i < data.length; i++) {
-        var intervalIndex = Math.floor(data[i] / intervalSize);
-        histogramData[intervalIndex]++;
-    }
+            // Determine the distribution into class intervals [i/k, (i+1)/k), i = 0,..., k-1
+            for (var i = 0; i < data.length; i++) {
+                var intervalIndex = Math.floor(data[i] / intervalSize);
+                histogramData[intervalIndex]++;
+            }
 
-    // Plot the histogram
-    var canvas = document.getElementById("histogram");
-    var ctx = canvas.getContext("2d");
-    var canvasWidth = canvas.width;
-    var canvasHeight = canvas.height;
-    var barWidth = canvasWidth / k;
+            // Plot the histogram
+            var canvas = document.getElementById("histogram");
+            var ctx = canvas.getContext("2d");
+            var canvasWidth = canvas.width;
+            var canvasHeight = canvas.height;
+            var barWidth = canvasWidth / k;
 
-    // Find the maximum value in the histogram data
-    var maxVal = Math.max(...histogramData);
+            // Find the maximum value in the histogram data
+            var maxVal = Math.max(...histogramData);
 
-    // Draw the bars of the histogram
-    for (var i = 0; i < histogramData.length; i++) {
-        var barHeight = (histogramData[i] / maxVal) * canvasHeight;
-        var x = i * barWidth;
-        var y = canvasHeight - barHeight;
-        ctx.fillStyle = "blue";
-        ctx.fillRect(x, y, barWidth, barHeight);
-    }
-}
-        
+            // Draw the bars of the histogram
+            for (var i = 0; i < histogramData.length; i++) {
+                var barHeight = (histogramData[i] / maxVal) * canvasHeight;
+                var x = i * barWidth;
+                var y = canvasHeight - barHeight;
+                ctx.fillStyle = "blue";
+                ctx.fillRect(x, y, barWidth, barHeight);
+            }
         }
         </script>
         <canvas id="histogram"></canvas>
