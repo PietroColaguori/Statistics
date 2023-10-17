@@ -61,7 +61,7 @@
                 var workSectors = [];
                 for (var i = 0; i < xlData.length; i++) {
                     if (xlData[i]["Expected work sectors"] !== undefined) {
-                        workSectors.push(xlData[i]["Expected work sectors"]);
+                        workSectors.push(xlData[i]["Expected work sectors"].toLowerCase().replace(/\s/g, ''));
                     }
                 }
         
@@ -211,6 +211,263 @@
 
     </script>
 
+    <p>Now I will show the code I wrote, both in JavaScript and in C# to obtain the results shown above.</p><br><br>
+
+    <h4>JavaScript Code</h4>
+    <pre><code class="language-javascript">
+        function analyze() {
+            // Access contents of XLSX file
+            var file = document.getElementById("fileInput").files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, {type: 'binary'});
+                var sheet_name_list = workbook.SheetNames;
+                var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {blankrows: false});
+                
+                // Access the values of the column "expected work sectors"
+                var workSectors = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Expected work sectors"] !== undefined) {
+                        workSectors.push(xlData[i]["Expected work sectors"]);
+                    }
+                }
+        
+                // Access the values of the column "expected salary"
+                var expectedSalary = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Expected net remuneration (monthly)"] !== undefined) {
+                        expectedSalary.push(xlData[i]["Expected net remuneration (monthly)"]);
+                    }
+                }
+        
+                // Access the values of the column "height"
+                var height = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["height"] !== undefined) {
+                        height.push(xlData[i]["height"]);
+                    }
+                }
+        
+                // Compute the frequency distribution of the 3 variables
+                var workSectorsFreq = {};
+                for (var i = 0; i < workSectors.length; i++) {
+                    if (workSectorsFreq[workSectors[i]] == undefined) {
+                        workSectorsFreq[workSectors[i]] = 1;
+                    } else {
+                        workSectorsFreq[workSectors[i]]++;
+                    }
+                }
+        
+                var expectedSalaryFreq = {};
+                for (var i = 0; i < expectedSalary.length; i++) {
+                    if (expectedSalaryFreq[expectedSalary[i]] == undefined) {
+                        expectedSalaryFreq[expectedSalary[i]] = 1;
+                    } else {
+                        expectedSalaryFreq[expectedSalary[i]]++;
+                    }
+                }
+        
+                var heightFreq = {};
+                for (var i = 0; i < height.length; i++) {
+                    if (heightFreq[height[i]] == undefined) {
+                        heightFreq[height[i]] = 1;
+                    } else {
+                        heightFreq[height[i]]++;
+                    }
+                }
+        
+                // Compute the relative and percentage frequencies of the 3 variables
+                var workSectorsRelFreq = {};
+                var workSectorsPercFreq = {};
+                for (var sector in workSectorsFreq) {
+                    workSectorsRelFreq[sector] = workSectorsFreq[sector] / workSectors.length;
+                    workSectorsPercFreq[sector] = workSectorsRelFreq[sector] * 100;
+                }
+        
+                var expectedSalaryRelFreq = {};
+                var expectedSalaryPercFreq = {};
+                for (var salary in expectedSalaryFreq) {
+                    expectedSalaryRelFreq[salary] = expectedSalaryFreq[salary] / expectedSalary.length;
+                    expectedSalaryPercFreq[salary] = expectedSalaryRelFreq[salary] * 100;
+                }
+        
+                var heightRelFreq = {};
+                var heightPercFreq = {};
+                for (var h in heightFreq) {
+                    heightRelFreq[h] = heightFreq[h] / height.length;
+                    heightPercFreq[h] = heightRelFreq[h] * 100;
+                }
+        
+                // Display the frequency distributions on the page
+                displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq);
+            
+                // Access the values of the column "Team leader or Team player ?"
+                var teamLeaderOrPlayer = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Team leader or Team player ?"] !== undefined) {
+                        teamLeaderOrPlayer.push(xlData[i]["Team leader or Team player ?"].toLowerCase());
+                    }
+                }
+
+                // Access the values of the column "Sex"
+                var sex = [];
+                for (var i = 0; i < xlData.length; i++) {
+                    if (xlData[i]["Sex"] !== undefined) {
+                        sex.push(xlData[i]["Sex"].toLowerCase());
+                    }
+                }
+
+                // Compute joint probability distribution between sex and teamLeaderOrPlayer
+                var jointProb = {};
+                for (var i = 0; i < sex.length; i++) {
+                    if (jointProb[sex[i]] == undefined) {
+                        jointProb[sex[i]] = {};
+                    }
+                    if (jointProb[sex[i]][teamLeaderOrPlayer[i]] == undefined) {
+                        jointProb[sex[i]][teamLeaderOrPlayer[i]] = 1;
+                    } else {
+                        jointProb[sex[i]][teamLeaderOrPlayer[i]]++;
+                    }
+                }
+
+                for (var sexVal in jointProb) {
+                    for (var teamVal in jointProb[sexVal]) {
+                        jointProb[sexVal][teamVal] /= sex.length;
+                        jointProb[sexVal][teamVal] *= 100;
+                    }
+                }
+
+                displayJointProbability(jointProb);
+
+            };
+            reader.readAsBinaryString(file);
+        }
+        
+        function displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq) {
+            var resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "<h3>Frequency Distributions:</h3>";
+            
+            // Display the frequency distribution for the "Expected work sectors" variable
+            resultsDiv.innerHTML += "<h4>Expected Work Sectors:</h4>";
+            for (var sector in workSectorsFreq) {
+                resultsDiv.innerHTML += sector + ": " + workSectorsFreq[sector] + " (" + workSectorsRelFreq[sector].toFixed(2) + " or " + workSectorsPercFreq[sector].toFixed(2) + "%)" + "<br>";
+            }
+        
+            // Display the frequency distribution for the "Expected salary" variable
+            resultsDiv.innerHTML += "<h4>Expected Salary:</h4>";
+            for (var salary in expectedSalaryFreq) {
+                resultsDiv.innerHTML += salary + ": " + expectedSalaryFreq[salary] + " (" + expectedSalaryRelFreq[salary].toFixed(2) + " or " + expectedSalaryPercFreq[salary].toFixed(2) + "%)" + "<br>";
+            }
+        
+            // Display the frequency distribution for the "Height" variable
+            resultsDiv.innerHTML += "<h4>Height:</h4>";
+            for (var h in heightFreq) {
+                resultsDiv.innerHTML += h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + " or " + heightPercFreq[h].toFixed(2) + "%)" + "<br>";
+            }
+        }
+
+        function displayJointProbability(jointProb) {
+            var resultsDiv = document.getElementById("jointResults");
+            resultsDiv.innerHTML += "<h4>Joint Probability Distribution:</h4>";
+            for (var sexVal in jointProb) {
+                for (var teamVal in jointProb[sexVal]) {
+                    resultsDiv.innerHTML += sexVal + " and " + teamVal + ": " + jointProb[sexVal][teamVal].toFixed(2) + "%<br>";
+                }
+            }
+        }
+    </code></pre><br><br>
+
+    <p>The following is the equivalent code written in C#: </p><br><br>
+
+    <pre><code class="language-csharp">
+using System;
+using System.Windows.Forms;
+using System.IO;
+using System.Data;
+using System.Linq;
+
+class Program
+{
+    static Label resultsLabel; // Declare the resultsLabel outside of Main method
+
+    class Program
+    {
+        static Label resultsLabel; // Declare the resultsLabel outside of Main method
+
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            // Create a new form
+            Form form = new Form
+            {
+                Text = "Frequency Calculator",
+                Size = new System.Drawing.Size(400, 400)
+            };
+
+            // Create a label on the form
+            Label label = new Label
+            {
+                Text = "Frequency Calculator",
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            // Add the label to the form
+            form.Controls.Add(label);
+
+            // Show the form (this shows the form, but it won't block the program)
+            form.Show();
+
+            // Read the Excel file
+            string filePath = "C:/Users/pietr/OneDrive/Documenti/GitHub/Statistics/hw2_CS/professional_life.xlsx";
+            DataSet ds = new DataSet();
+            if (File.Exists(filePath))
+            {
+                ds.ReadXml(filePath);
+            }
+            else
+            {
+                MessageBox.Show("File not found!");
+                return;
+            }
+
+            // Get the data from the Excel file
+            DataTable dt = ds.Tables[0];
+            var sex = dt.AsEnumerable().Select(x => x.Field<string>("Sex")).ToList();
+            var teamLeaderOrPlayer = dt.AsEnumerable().Select(x => x.Field<string>("Team leader or Team player ?")).ToList();
+
+            // Compute the joint probability
+            var jointProbability = sex.Zip(teamLeaderOrPlayer, (s, t) => new { Sex = s, TeamLeaderOrPlayer = t })
+                                       .GroupBy(x => new { x.Sex, x.TeamLeaderOrPlayer })
+                                       .ToDictionary(x => $"{x.Key.Sex} - {x.Key.TeamLeaderOrPlayer}", x => (double)x.Count() / dt.Rows.Count);
+
+            // Display the results in a label on the form
+            resultsLabel = new Label
+            {
+                Text = "Calculating frequencies...",
+                TextAlign = ContentAlignment.TopLeft,
+                Location = new System.Drawing.Point(10, 50),
+                AutoSize = true
+            };
+            form.Controls.Add(resultsLabel);
+
+            string message = "Joint probability between Sex and Team leader or Team player ?:\n";
+            foreach (var item in jointProbability)
+            {
+                message += $"{item.Key}: {item.Value:P2}\n";
+            }
+
+            resultsLabel.Text = message; // Update the label text with the results
+
+            // Wait for the form to be closed
+            Application.Run(form);
+        }
+    }
+}
+    </code></pre>
+
     <h3 class="red">After Life Survey - Analysis</h3>
     <!-- Qualitative: religion, Quantitative: ???, Quantitative Continuous: ???-->
     <p> Upload the XLSX file of the After Life survey</p>
@@ -323,6 +580,12 @@
 
     <h3 class="red">Comparison with Famous DBMS functionalities</h3>
 
+    <br><br>
+    <p>
+        The code used for this second analysis is very similar to the one used in the previous, so, to avoid redundancy, instead 
+        of displaying it inside the webpage I'll link the <a href="https://github.com/PietroColaguori/Statistics/blob/main/pages/hw2.html">GitHub repository</a> with the full code of the homework.
+    </p>
+    
     <br><hr><br>
 
     <pre class="question">
@@ -337,8 +600,8 @@ array, list, dictionary, sorted list, hashset, sortedset, queue, stack, linkedli
 Note in a very concise way your finding in your Js Cheatsheet, and, in case a corresponding Js object does not exists, create a simple equivalent class with all necessary corresponding methods.
     </pre>
 
-    The CheatSheet file I have created, with all the useful snippets, can be found at the following link: <a href="./cheatsheet.html">JS Cheatsheet</a>
-
+    The CheatSheet file I have created, with all the useful JS snippets, can be found at the following link: <a href="./cheatsheet_js.html">JS Cheatsheet</a><br><br>
+    I also created a CheatSheet with useful C# snippets, which can be found at the following link: <a href="./cheatsheet_cs.html">C# Cheatsheet</a> 
     <br><hr><br>
 
     <pre class="question">
@@ -346,51 +609,230 @@ Note in a very concise way your finding in your Js Cheatsheet, and, in case a co
 Play with N and k values and draw some conclusion on the "shape" of the distribution.
     </pre>
 
-    <input type="number" id="N" placeholder="N">
-    <input type="number" id="k" placeholder="k">
-    <button id="generate" onclick="return generate()">Generate</button>
+    <b><p>Note: it is needed to reload the page if you want to plot a new histogram</p></b><br>
+    <label for="N">Number of Random Numbers (N):</label>
+    <input type="number" id="N" value="100">
+    <br><br>
+    <label for="k">Number of Intervals (k):</label>
+    <input type="number" id="k" value="10">
+    <br><br>
+    <button onclick="generate()">Generate</button>
     <div id="output3"></div>
+    <canvas id="myChart" width="200" height="100"></canvas>
 
     <script>
         function generate() {
             var N = document.getElementById("N").value;
             var k = document.getElementById("k").value;
-            var data = [];
-            var intervalSize = 1 / k;
-            var histogramData = new Array(k).fill(0);
+            var output = document.getElementById("output3");
+            output.innerHTML = "";
 
-            // Generate N uniform random variates in [0,1)
+            var randoms = [];
             for (var i = 0; i < N; i++) {
-                data.push(Math.random());
+                randoms.push(Math.random());
             }
 
-            // Determine the distribution into class intervals [i/k, (i+1)/k), i = 0,..., k-1
-            for (var i = 0; i < data.length; i++) {
-                var intervalIndex = Math.floor(data[i] / intervalSize);
-                histogramData[intervalIndex]++;
+            var classIntervals = [];
+            for (var i = 0; i < k; i++) {
+                classIntervals.push([i / k, (i + 1) / k]);
             }
 
-            // Plot the histogram
-            var canvas = document.getElementById("histogram");
-            var ctx = canvas.getContext("2d");
-            var canvasWidth = canvas.width;
-            var canvasHeight = canvas.height;
-            var barWidth = canvasWidth / k;
+            var classFreq = {};
+            for (var i = 0; i < classIntervals.length; i++) {
+                classFreq[i] = 0;
+            }
 
-            // Find the maximum value in the histogram data
-            var maxVal = Math.max(...histogramData);
+            for (var i = 0; i < randoms.length; i++) {
+                for (var j = 0; j < classIntervals.length; j++) {
+                    if (randoms[i] >= classIntervals[j][0] && randoms[i] < classIntervals[j][1]) {
+                        classFreq[j]++;
+                    }
+                }
+            }
 
-            // Draw the bars of the histogram
-            for (var i = 0; i < histogramData.length; i++) {
-                var barHeight = (histogramData[i] / maxVal) * canvasHeight;
-                var x = i * barWidth;
-                var y = canvasHeight - barHeight;
-                ctx.fillStyle = "blue";
-                ctx.fillRect(x, y, barWidth, barHeight);
+            for (var i = 0; i < classIntervals.length; i++) {
+                output.innerHTML += "[" + classIntervals[i][0] + ", " + classIntervals[i][1] + "): " + classFreq[i] + "<br>";
+            }
+
+            // Create a histogram using Chart.js library
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: classIntervals.map(interval => "[" + interval[0] + ", " + interval[1] + ")"),
+                    datasets: [{
+                        label: 'Frequency',
+                        data: Object.values(classFreq),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    </script>
+
+    <br><br><p>The following is the JavaScript code used to generate the histogram shown above:</p><br>
+
+    <pre><code class="language-javascript">
+    function generate() {
+        var N = document.getElementById("N").value;
+        var k = document.getElementById("k").value;
+        var output = document.getElementById("output3");
+        output.innerHTML = "";
+
+        var randoms = [];
+        for (var i = 0; i < N; i++) {
+            randoms.push(Math.random());
+        }
+
+        var classIntervals = [];
+        for (var i = 0; i < k; i++) {
+            classIntervals.push([i / k, (i + 1) / k]);
+        }
+
+        var classFreq = {};
+        for (var i = 0; i < classIntervals.length; i++) {
+            classFreq[i] = 0;
+        }
+
+        for (var i = 0; i < randoms.length; i++) {
+            for (var j = 0; j < classIntervals.length; j++) {
+                if (randoms[i] >= classIntervals[j][0] && randoms[i] < classIntervals[j][1]) {
+                    classFreq[j]++;
+                }
             }
         }
-        </script>
-        <canvas id="histogram"></canvas>
+
+        for (var i = 0; i < classIntervals.length; i++) {
+            output.innerHTML += "[" + classIntervals[i][0] + ", " + classIntervals[i][1] + "): " + classFreq[i] + "<br>";
+        }
+
+        // Create a histogram using Chart.js library
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: classIntervals.map(interval => "[" + interval[0] + ", " + interval[1] + ")"),
+                datasets: [{
+                    label: 'Frequency',
+                    data: Object.values(classFreq),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+    </code></pre>
+    <br><br>
+    <p>The equivalent in C# is the following: </p><br><br>
+    <pre><code class="language-csharp">
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+
+class Program
+{
+    static void Main()
+    {
+        int N = 100; // Replace with the value from your "N" input
+        int k = 10;  // Replace with the value from your "k" input
+
+        Random random = new Random();
+        List<double> randoms = new List<double>();
+        for (int i = 0; i < N; i++)
+        {
+            randoms.Add(random.NextDouble());
+        }
+
+        List<Tuple<double, double>> classIntervals = new List<Tuple<double, double>>();
+        for (int i = 0; i < k; i++)
+        {
+            double start = i / (double)k;
+            double end = (i + 1) / (double)k;
+            classIntervals.Add(Tuple.Create(start, end));
+        }
+
+        Dictionary<int, int> classFreq = new Dictionary<int, int>();
+        for (int i = 0; i < classIntervals.Count; i++)
+        {
+            classFreq[i] = 0;
+        }
+
+        for (int i = 0; i < randoms.Count; i++)
+        {
+            for (int j = 0; j < classIntervals.Count; j++)
+            {
+                if (randoms[i] >= classIntervals[j].Item1 && randoms[i] < classIntervals[j].Item2)
+                {
+                    classFreq[j]++;
+                }
+            }
+        }
+
+        // Create a Windows Forms application
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+
+        // Create a form and chart
+        Form form = new Form
+        {
+            Text = "Histogram",
+            Size = new System.Drawing.Size(600, 400)
+        };
+
+        Chart chart = new Chart();
+        chart.Size = new System.Drawing.Size(560, 320);
+        chart.Location = new System.Drawing.Point(20, 40);
+
+        // Create a chart area and add it to the chart
+        ChartArea chartArea = new ChartArea();
+        chart.ChartAreas.Add(chartArea);
+
+        // Create a series for the histogram
+        Series series = new Series();
+        series.ChartType = SeriesChartType.Column;
+
+        // Add data points to the series
+        foreach (var interval in classIntervals)
+        {
+            double xValue = (interval.Item1 + interval.Item2) / 2;
+            int yValue = classFreq[classIntervals.IndexOf(interval)];
+            series.Points.AddXY(xValue, yValue);
+        }
+
+        // Add the series to the chart
+        chart.Series.Add(series);
+
+        // Add the chart to the form
+        form.Controls.Add(chart);
+
+        // Show the form
+        Application.Run(form);
+    }
+}
+
+    </code></pre>
 
     <br><hr><br>
 

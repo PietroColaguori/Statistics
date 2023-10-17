@@ -1,0 +1,300 @@
+<!-- FILEPATH: /C:/Users/pietr/OneDrive/Documenti/GitHub/Statistics/pages/cheatsheet_cs.html -->
+<html>
+    <head>
+        <meta http-equiv='cache-control' content='no-cache'> 
+        <meta http-equiv='expires' content='0'> 
+        <meta http-equiv='pragma' content='no-cache'>
+        <title>C# Cheatsheet</title>
+        <link rel="stylesheet" href="../style.css">
+        <link rel="stylesheet" href="../prism.css"> 
+    </head>
+<!-- C# Cheatsheet -->
+<h1>C# Cheatsheet</h1>
+
+<!-- Loops -->
+<h2>Loops</h2>
+<pre><code class="language-javascript">
+// For loop
+for (int i = 0; i < 10; i++)
+{
+    // Code to execute
+}
+
+// While loop
+while (condition)
+{
+    // Code to execute
+}
+
+// Do-while loop
+do
+{
+    // Code to execute
+} while (condition);
+
+// Foreach loop
+foreach (var item in collection)
+{
+    // Code to execute
+}
+
+// Break statement
+for (int i = 0; i < 10; i++)
+{
+    if (i == 5)
+    {
+        break;
+    }
+    // Code to execute
+}
+
+// Continue statement
+for (int i = 0; i < 10; i++)
+{
+    if (i == 5)
+    {
+        continue;
+    }
+    // Code to execute
+}
+</code></pre>
+
+<!-- Data Structures -->
+<h2>Data Structures</h2>
+
+<!-- Array -->
+<h3>Array</h3>
+<pre><code class="language-javascript">
+// Declaration
+int[] array = new int[5];
+
+// Initialization
+int[] array = { 1, 2, 3, 4, 5 };
+
+// Accessing elements
+int firstElement = array[0];
+int lastElement = array[array.Length - 1];
+
+// Looping through elements
+for (int i = 0; i < array.Length; i++)
+{
+    int element = array[i];
+    // Code to execute
+}
+</code></pre>
+
+<!-- List -->
+<h3>List</h3>
+<pre><code class="language-javascript">
+// Declaration
+List<int> list = new List<int>();
+
+// Adding elements
+list.Add(1);
+list.Add(2);
+list.Add(3);
+
+// Removing elements
+list.Remove(2);
+
+// Accessing elements
+int firstElement = list[0];
+int lastElement = list[list.Count - 1];
+
+// Looping through elements
+foreach (int element in list)
+{
+    // Code to execute
+}
+</code></pre>
+
+<!-- Dictionary -->
+<h3>Dictionary</h3>
+<pre><code class="language-javascript">
+// Declaration
+Dictionary<string, int> dictionary = new Dictionary<string, int>();
+
+// Adding elements
+dictionary.Add("key1", 1);
+dictionary.Add("key2", 2);
+dictionary.Add("key3", 3);
+
+// Removing elements
+dictionary.Remove("key2");
+
+// Accessing elements
+int value = dictionary["key1"];
+
+// Checking existence of key
+bool exists = dictionary.ContainsKey("key1");
+
+// Looping through elements
+foreach (KeyValuePair<string, int> pair in dictionary)
+{
+    string key = pair.Key;
+    int value = pair.Value;
+    // Code to execute
+}
+</code></pre>
+
+<!-- Sorted List -->
+<h3>Sorted List</h3>
+<pre><code class="language-javascript">
+// Declaration
+SortedList<string, int> sortedList = new SortedList<string, int>();
+
+// Adding elements
+sortedList.Add("key1", 1);
+sortedList.Add("key2", 2);
+sortedList.Add("key3", 3);
+
+// Removing elements
+sortedList.Remove("key2");
+
+// Accessing elements
+int value = sortedList["key1"];
+
+// Checking existence of key
+bool exists = sortedList.ContainsKey("key1");
+
+// Looping through elements
+foreach (KeyValuePair<string, int> pair in sortedList)
+{
+    string key = pair.Key;
+    int value = pair.Value;
+    // Code to execute
+}
+</code></pre>
+
+<!-- HashSet -->
+<h3>HashSet</h3>
+<pre><code class="language-javascript">
+// Declaration
+HashSet<int> hashSet = new HashSet<int>();
+
+// Adding elements
+hashSet.Add(1);
+hashSet.Add(2);
+hashSet.Add(3);
+
+// Removing elements
+hashSet.Remove(2);
+
+// Checking existence of element
+bool exists = hashSet.Contains(1);
+
+// Looping through elements
+foreach (int element in hashSet)
+{
+    // Code to execute
+}
+</code></pre>
+
+<!-- SortedSet -->
+<h3>SortedSet</h3>
+<pre><code class="language-javascript">
+// Declaration
+SortedSet<int> sortedSet = new SortedSet<int>();
+
+// Adding elements
+sortedSet.Add(1);
+sortedSet.Add(2);
+sortedSet.Add(3);
+
+// Removing elements
+sortedSet.Remove(2);
+
+// Checking existence of element
+bool exists = sortedSet.Contains(1);
+
+// Looping through elements
+foreach (int element in sortedSet)
+{
+    // Code to execute
+}
+</code></pre>
+
+<!-- Queue -->
+<h3>Queue</h3>
+<pre><code class="language-javascript">
+// Declaration
+Queue<int> queue = new Queue<int>();
+
+// Adding elements
+queue.Enqueue(1);
+queue.Enqueue(2);
+queue.Enqueue(3);
+
+// Removing elements
+int firstElement = queue.Dequeue();
+
+// Accessing elements
+int firstElement = queue.Peek();
+
+// Checking existence of element
+bool exists = queue.Contains(1);
+
+// Looping through elements
+foreach (int element in queue)
+{
+    // Code to execute
+}
+</code></pre>
+
+<!-- Stack -->
+<h3>Stack</h3>
+<pre><code class="language-javascript">
+// Declaration
+Stack<int> stack = new Stack<int>();
+
+// Adding elements
+stack.Push(1);
+stack.Push(2);
+stack.Push(3);
+
+// Removing elements
+int lastElement = stack.Pop();
+
+// Accessing elements
+int lastElement = stack.Peek();
+
+// Checking existence of element
+bool exists = stack.Contains(1);
+
+// Looping through elements
+foreach (int element in stack)
+{
+    // Code to execute
+}
+</code></pre>
+
+<!-- LinkedList -->
+<h3>LinkedList</h3>
+<pre><code class="language-javascript">
+// Declaration
+LinkedList<int> linkedList = new LinkedList<int>();
+
+// Adding elements
+linkedList.AddFirst(1);
+linkedList.AddLast(3);
+linkedList.AddAfter(linkedList.First, 2);
+
+// Removing elements
+linkedList.Remove(2);
+
+// Accessing elements
+int firstElement = linkedList.First.Value;
+int lastElement = linkedList.Last.Value;
+
+// Checking existence of element
+bool exists = linkedList.Contains(1);
+
+// Looping through elements
+foreach (int element in linkedList)
+{
+    // Code to execute
+}
+</code></pre>
+<script src="../prism.js"></script>
+</body>
+</html>

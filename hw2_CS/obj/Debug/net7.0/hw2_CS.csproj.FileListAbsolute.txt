@@ -1,0 +1,4 @@
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0\hw2_CS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0\hw2_CS.AssemblyInfoInputs.cache
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0\hw2_CS.AssemblyInfo.cs
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0\hw2_CS.csproj.CoreCompileInputs.cache

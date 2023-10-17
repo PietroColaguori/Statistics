@@ -1,0 +1,14 @@
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\bin\Debug\net7.0-windows\hw2_CS.exe
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\bin\Debug\net7.0-windows\hw2_CS.deps.json
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\bin\Debug\net7.0-windows\hw2_CS.runtimeconfig.json
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\bin\Debug\net7.0-windows\hw2_CS.dll
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\bin\Debug\net7.0-windows\hw2_CS.pdb
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.AssemblyInfoInputs.cache
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.AssemblyInfo.cs
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.csproj.CoreCompileInputs.cache
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.dll
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\refint\hw2_CS.dll
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.pdb
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\hw2_CS.genruntimeconfig.cache
+C:\Users\pietr\OneDrive\Documenti\GitHub\Statistics\hw2_CS\obj\Debug\net7.0-windows\ref\hw2_CS.dll
