@@ -80,6 +80,23 @@
                         height.push(xlData[i]["height"]);
                     }
                 }
+
+                // Divide height values into three classes
+                var short = 0;
+                var average = 0;
+                var tall = 0;
+                for (var i = 0; i < height.length; i++) {
+                    if (height[i] < 1.7) {
+                        short++;
+                    } else if (height[i] >= 1.7 && height[i] <= 1.8) {
+                        average++;
+                    } else {
+                        tall++;
+                    }
+                }
+
+                // I have just obtained the absolute frequencies
+                heightData = [short, average, tall];
         
                 // Compute the frequency distribution of the 3 variables
                 var workSectorsFreq = {};
@@ -132,13 +149,16 @@
                 }
         
                 // Display the frequency distributions on the page
-                displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq);
+                displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightData);
             
                 // Access the values of the column "Team leader or Team player ?"
                 var teamLeaderOrPlayer = [];
                 for (var i = 0; i < xlData.length; i++) {
                     if (xlData[i]["Team leader or Team player ?"] !== undefined) {
-                        teamLeaderOrPlayer.push(xlData[i]["Team leader or Team player ?"].toLowerCase());
+                        var teamLeaderOrPlayerValue = xlData[i]["Team leader or Team player ?"].toLowerCase();
+                        if (teamLeaderOrPlayerValue === "team player" || teamLeaderOrPlayerValue === "team leader") {
+                            teamLeaderOrPlayer.push(teamLeaderOrPlayerValue);
+                        }
                     }
                 }
 
@@ -146,7 +166,10 @@
                 var sex = [];
                 for (var i = 0; i < xlData.length; i++) {
                     if (xlData[i]["Sex"] !== undefined) {
-                        sex.push(xlData[i]["Sex"].toLowerCase());
+                        var sexValue = xlData[i]["Sex"].toLowerCase();
+                        if (sexValue === "m" || sexValue === "f") {
+                            sex.push(sexValue);
+                        }
                     }
                 }
 
@@ -194,9 +217,34 @@
         
             // Display the frequency distribution for the "Height" variable
             resultsDiv.innerHTML += "<h4>Height:</h4>";
-            for (var h in heightFreq) {
-                resultsDiv.innerHTML += h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + " or " + heightPercFreq[h].toFixed(2) + "%)" + "<br>";
-            }
+            resultsDiv.innerHTML +=
+            "Short (< 1.7m): " +
+            heightData[0] +
+            " (" +
+            (heightData[0] / heightData.reduce((a, b) => a + b)).toFixed(2) +
+            " or " +
+            ((heightData[0] / heightData.reduce((a, b) => a + b)) * 100).toFixed(2) +
+            "%)" +
+            "<br>";
+        resultsDiv.innerHTML +=
+            "Average (1.7m to 1.8m): " +
+            heightData[1] +
+            " (" +
+            (heightData[1] / heightData.reduce((a, b) => a + b)).toFixed(2) +
+            " or " +
+            ((heightData[1] / heightData.reduce((a, b) => a + b)) * 100).toFixed(2) +
+            "%)" +
+            "<br>";
+        resultsDiv.innerHTML +=
+            "Tall (> 1.8m): " +
+            heightData[2] +
+            " (" +
+            (heightData[2] / heightData.reduce((a, b) => a + b)).toFixed(2) +
+            " or " +
+            ((heightData[2] / heightData.reduce((a, b) => a + b)) * 100).toFixed(2) +
+            "%)" +
+            "<br>";
+            
         }
 
         function displayJointProbability(jointProb) {
@@ -209,7 +257,21 @@
             }
         }
 
-    </script>
+    </script><hr><br>
+    <p>Having already tested the script, I show below the results obtained by the analysis</p><br>
+    <p>I chose as a qualitative variable the desired career sector, as a quantitative discrete variable the expected monthly salary
+        and as a quantitative continuous variable the height of the students.</p><br>
+    </p>
+    <br><hr><br>
+
+    <div class="image-container">
+        <div style="display: flex;">
+            <img src="../images/h2e1r1.png" alt="Image 1" style="display:inline-block;width:50%;">
+            <img src="../images/h2e1r2.png" alt="Image 2" style="display:inline-block;width:50%;">
+        </div>
+    </div>
+
+    <br><hr><br>
 
     <p>Now I will show the code I wrote, both in JavaScript and in C# to obtain the results shown above.</p><br><br>
 
@@ -229,7 +291,7 @@
                 var workSectors = [];
                 for (var i = 0; i < xlData.length; i++) {
                     if (xlData[i]["Expected work sectors"] !== undefined) {
-                        workSectors.push(xlData[i]["Expected work sectors"]);
+                        workSectors.push(xlData[i]["Expected work sectors"].toLowerCase().replace(/\s/g, ''));
                     }
                 }
         
@@ -248,6 +310,23 @@
                         height.push(xlData[i]["height"]);
                     }
                 }
+
+                // Divide height values into three classes
+                var short = 0;
+                var average = 0;
+                var tall = 0;
+                for (var i = 0; i < height.length; i++) {
+                    if (height[i] < 1.7) {
+                        short++;
+                    } else if (height[i] >= 1.7 && height[i] <= 1.8) {
+                        average++;
+                    } else {
+                        tall++;
+                    }
+                }
+
+                // I have just obtained the absolute frequencies
+                heightData = [short, average, tall];
         
                 // Compute the frequency distribution of the 3 variables
                 var workSectorsFreq = {};
@@ -300,13 +379,16 @@
                 }
         
                 // Display the frequency distributions on the page
-                displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightFreq, heightRelFreq, heightPercFreq);
+                displayResults(workSectorsFreq, workSectorsRelFreq, workSectorsPercFreq, expectedSalaryFreq, expectedSalaryRelFreq, expectedSalaryPercFreq, heightData);
             
                 // Access the values of the column "Team leader or Team player ?"
                 var teamLeaderOrPlayer = [];
                 for (var i = 0; i < xlData.length; i++) {
                     if (xlData[i]["Team leader or Team player ?"] !== undefined) {
-                        teamLeaderOrPlayer.push(xlData[i]["Team leader or Team player ?"].toLowerCase());
+                        var teamLeaderOrPlayerValue = xlData[i]["Team leader or Team player ?"].toLowerCase();
+                        if (teamLeaderOrPlayerValue === "team player" || teamLeaderOrPlayerValue === "team leader") {
+                            teamLeaderOrPlayer.push(teamLeaderOrPlayerValue);
+                        }
                     }
                 }
 
@@ -314,7 +396,10 @@
                 var sex = [];
                 for (var i = 0; i < xlData.length; i++) {
                     if (xlData[i]["Sex"] !== undefined) {
-                        sex.push(xlData[i]["Sex"].toLowerCase());
+                        var sexValue = xlData[i]["Sex"].toLowerCase();
+                        if (sexValue === "m" || sexValue === "f") {
+                            sex.push(sexValue);
+                        }
                     }
                 }
 
@@ -362,9 +447,34 @@
         
             // Display the frequency distribution for the "Height" variable
             resultsDiv.innerHTML += "<h4>Height:</h4>";
-            for (var h in heightFreq) {
-                resultsDiv.innerHTML += h + ": " + heightFreq[h] + " (" + heightRelFreq[h].toFixed(2) + " or " + heightPercFreq[h].toFixed(2) + "%)" + "<br>";
-            }
+            resultsDiv.innerHTML +=
+            "Short (< 1.7m): " +
+            heightData[0] +
+            " (" +
+            (heightData[0] / heightData.reduce((a, b) => a + b)).toFixed(2) +
+            " or " +
+            ((heightData[0] / heightData.reduce((a, b) => a + b)) * 100).toFixed(2) +
+            "%)" +
+            "<br>";
+        resultsDiv.innerHTML +=
+            "Average (1.7m to 1.8m): " +
+            heightData[1] +
+            " (" +
+            (heightData[1] / heightData.reduce((a, b) => a + b)).toFixed(2) +
+            " or " +
+            ((heightData[1] / heightData.reduce((a, b) => a + b)) * 100).toFixed(2) +
+            "%)" +
+            "<br>";
+        resultsDiv.innerHTML +=
+            "Tall (> 1.8m): " +
+            heightData[2] +
+            " (" +
+            (heightData[2] / heightData.reduce((a, b) => a + b)).toFixed(2) +
+            " or " +
+            ((heightData[2] / heightData.reduce((a, b) => a + b)) * 100).toFixed(2) +
+            "%)" +
+            "<br>";
+            
         }
 
         function displayJointProbability(jointProb) {
@@ -575,10 +685,40 @@ class Program
                     resultsDiv.innerHTML += answer + " and " + reinc + ": " + jointProb[answer][reinc].toFixed(2) + "%<br>";
                 }
             }
+
+            
+            
         }
-    </script>
+    </script><hr><br>
+
+    <p>Having already tested the script, I show below the results obtained.</p>
+    <p>I chose to analyze two qualitative variables (there are no quantitative variables in the database). 
+       These two variables are wether the person is religious or not and wether the person believes in reincarnation or not.<br>
+    <strong>In the end, we notice something interesting: the people who are not religious are more likely to believe in reincarnation than the people who are religious.</strong></p><br><br>
+    <p>I will also show the statiscs regarding the role (team player / team leader) and sex: </p>
+
+
+    <img src="../images/h2e1r3.png" alt="Image 3" style="display:inline-block;width:50%;">
 
     <h3 class="red">Comparison with Famous DBMS functionalities</h3>
+    <p> In order to double check the data obtained by my script I used the functionalities offered by this <a href="https://statsim.com/">useful website.</a></p>
+    <p> I can easily notice that my script correctly computed the frequencies needed for the required distributions, for insace below I show an analysis of the expected working sector done by the online service.</p>
+    <img src="../images/h2_compare1.png">
+    <p>Notice how the service doesn't "beautify" the names like I did, but by hovering over each row I get shown the absolute distribution, by adding them up I verify that what my scripts compute is correct.</p>
+    <p>I also used the same webapp to get a more intuitive idea of the frequencies of the "Team Leader / Team Player" and "Sex" attributes.</p>
+
+    <div class="image-container" style="display: flex; justify-content: center;">
+        <div style="display: flex;">
+            <img src="../images/h2_compare2.png" alt="Image 1" style="display:inline-block;width:50%;">
+            <img src="../images/h2_compare3.png" alt="Image 2" style="display:inline-block;width:50%;">
+        </div>
+    </div>
+
+    <p>I have also imported the CSV corresponding to the Professional Life survey inside Postgres, creating an appropriate table. 
+       Using the Query Tool I have been able to compute the joint distribution, verifying the results obtained by my script.
+    </p>
+
+    <img src="../images/h2_compare4.png">
 
     <br><br>
     <p>
@@ -679,7 +819,15 @@ Play with N and k values and draw some conclusion on the "shape" of the distribu
                 }
             });
         }
-    </script>
+    </script><hr><br>
+
+    <p>I tested my script with various configurations, for instance, here is the histogram generate with inputs N = 100 and k = 10.</p><br>
+
+    <img src="../images/h2e3r1.png" alt="Image 4" style="display:inline-block;width:50%;">
+
+    <p> Below is the output of another run with N = 10000 and k = 25.</p><br>
+
+    <img src="../images/h2e3r2.png" alt="Image 5" style="display:inline-block;width:50%;">
 
     <br><br><p>The following is the JavaScript code used to generate the histogram shown above:</p><br>
 
