@@ -7,6 +7,7 @@
         <title>Homework 3</title>
         <link rel="stylesheet" href="../style.css">
         <link rel="stylesheet" href="../prism.css"> 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     </head>
     <body>
         <h1>Homework 3</h1>
@@ -14,7 +15,497 @@
         <a href="../index.html">Home</a>
         <hr>
 
-        <h2>Work in progress ...</h2>
+        <p class="question">
+            M systems are subject to a series of N attacks. On the x-axis, we indicate the attacks and on the Y-axis we
+            simulate the accumulation of a "security score" (-1, 1), where the score is -1 if the system is penetrated
+            and 1 if the system was successfully "shielded" or protected. Simulate the score "trajectories" for all systems,
+            assuming, for simplicity, a constant penetration probability p at each attack.
+        </p>
+        <hr>
+
+        <p>Insert the number of systems (M): </p>
+        <input type="number" id="M" placeholder="M" value="5">
+        <p>Insert the number of attacks N for each system (N): </p>
+        <input type="number" id="N" placeholder="N" value="10">
+        <p> Insert the penetration probability for a generic system (p):</p>
+        <input type="number" id="p" placeholder="p" value="0.3" max="1" min="0">
+        <br><br>
+        <button onclick="return SimulateSystems(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Security Score</button>
+        <button onclick="return CumulatedFrequency(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Cumulated Frequency</button>
+        <button onclick="return RelativeFrequency(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Relative Frequency</button>
+        <button onclick="return NormalizedRatio(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Normalized Ratio</button>
+
+            <script>
+            // Q1: Simulate the score "trajectories" for all systems, assuming, for simplicity, a constant penetration probability p at each attack.
+            function SimulateSystems(m, n, p) {
+                var results = document.getElementById("results_q1");
+                results.innerHTML = "";
+
+                // Create an array to store the scores for plotting
+                var scoreData = Array.from({ length: n }, () => []);
+
+                // Create an array to store the number of attacks for each system
+                var attackData = Array.from({ length: m }, () => 0);
+
+                // Generate an array of random colors
+                var colors = Array.from({ length: m }, () => {
+                    var r = Math.floor(Math.random() * 256);
+                    var g = Math.floor(Math.random() * 256);
+                    var b = Math.floor(Math.random() * 256);
+                    return `rgba(${r}, ${g}, ${b}, 1)`;
+                });
+
+                for (var i = 0; i < m; i++) {
+                    var system = new System(n, p);
+                    var systemDiv = document.createElement("div");
+                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
+                    results.appendChild(systemDiv);
+
+                    // Update the scoreData with the scores from this system
+                    for (var j = 0; j < n; j++) {
+                        scoreData[j].push(system.scoreTrajectory[j]);
+                    }
+
+                    // Update the attackData with the number of attacks for this system
+                    attackData[i] = system.nAttacks;
+                }
+
+                // Create a Chart.js line chart for the security scores
+                var scoreCtx = document.getElementById('scoreChart').getContext('2d');
+                var scoreChart = new Chart(scoreCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: n }, (_, i) => i + 1),
+                        datasets: Array.from({ length: m }, (_, i) => ({
+                            label: 'System ' + (i + 1),
+                            data: scoreData.map(scores => scores[i]),
+                            borderColor: colors[i],
+                            borderWidth: 2,
+                            fill: false
+                        }))
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Attacks'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Security Score'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Create a Chart.js histogram chart for the number of attacks
+                var attackCtx = document.getElementById('histogramChart').getContext('2d');
+                var attackChart = new Chart(attackCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
+                        datasets: [{
+                            label: 'Number of Attacks',
+                            data: attackData,
+                            backgroundColor: colors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'System'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Attacks'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function System(n, p) {
+                this.n = n;
+                this.p = p;
+                this.scoreTrajectory = [];
+                this.nAttacks = 0;
+
+                this.Simulate = function () {
+                    var score = 0;
+                    for (var i = 0; i < this.n; i++) {
+                        if (Math.random() <= this.p) {
+                            score--;
+                            this.nAttacks++;
+                        } else {
+                            score++;
+                        }
+                        this.scoreTrajectory.push(score);
+                    }
+                    return score;
+                }
+            }
+
+            // Q2: Cumulated Frequency
+            function CumulatedFrequency(m, n, p) {
+                var results = document.getElementById("results_q1");
+                results.innerHTML = "";
+
+                // Create an array to store the scores for plotting
+                var scoreData = Array.from({ length: n }, () => []);
+
+                // Generate an array of random colors
+                var colors = Array.from({ length: m }, () => {
+                    var r = Math.floor(Math.random() * 256);
+                    var g = Math.floor(Math.random() * 256);
+                    var b = Math.floor(Math.random() * 256);
+                    return `rgba(${r}, ${g}, ${b}, 1)`;
+                });
+
+                // Create an array to store the number of attacks suffered by each system
+                var attackData = Array.from({ length: m }, () => 0);
+
+                for (var i = 0; i < m; i++) {
+                    var system = new System(n, p);
+                    var systemDiv = document.createElement("div");
+                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
+                    results.appendChild(systemDiv);
+
+                    // Count the number of times the score goes below zero
+                    var penetrations = 0;
+                    for (var j = 0; j < n; j++) {
+                        if (system.scoreTrajectory[j] < 0) {
+                            penetrations++;
+                        }
+                        scoreData[j].push(penetrations);
+                    }
+
+                    // Count the number of attacks suffered by the system
+                    attackData[i] = system.nAttacks;
+                }
+
+                // Create a Chart.js line chart for the cumulated frequency
+                var ctx = document.getElementById('scoreChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: n }, (_, i) => i + 1),
+                        datasets: Array.from({ length: m }, (_, i) => ({
+                            label: 'System ' + (i + 1),
+                            data: scoreData.map(scores => scores[i]),
+                            borderColor: colors[i],
+                            borderWidth: 2,
+                            fill: false
+                        }))
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Attacks'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Penetrations'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Create a Chart.js bar chart for the number of attacks suffered by each system
+                var ctx2 = document.getElementById('histogramChart').getContext('2d');
+                var chart2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
+                        datasets: [{
+                            label: 'Number of Attacks',
+                            data: attackData,
+                            backgroundColor: colors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'System'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Attacks'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Q3: Relative Frequency #numberOfPenetrationsForSystem / #numberOfTotalPenetrations
+            function RelativeFrequency(m, n, p) {
+                var results = document.getElementById("results_q1");
+                results.innerHTML = "";
+
+                // Create an array to store the scores for plotting
+                var scoreData = Array.from({ length: n }, () => []);
+                var attackData = Array.from({ length: m }, () => 0); // Initialize array for attack data
+
+                // Generate an array of random colors
+                var colors = Array.from({ length: m }, () => {
+                    var r = Math.floor(Math.random() * 256);
+                    var g = Math.floor(Math.random() * 256);
+                    var b = Math.floor(Math.random() * 256);
+                    return `rgba(${r}, ${g}, ${b}, 1)`;
+                });
+
+                // Count the total number of penetrations across all systems
+                var totalPenetrations = 0;
+                var totalAttacks = 0; // Initialize variable for total number of attacks
+
+                for (var i = 0; i < m; i++) {
+                    var system = new System(n, p);
+                    var systemDiv = document.createElement("div");
+                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
+                    results.appendChild(systemDiv);
+
+                    // Count the number of times the score goes below zero
+                    var penetrations = 0;
+                    for (var j = 0; j < n; j++) {
+                        if (system.scoreTrajectory[j] < 0) {
+                            penetrations++;
+                        }
+                        scoreData[j].push(penetrations);
+                    }
+                    totalPenetrations += penetrations;
+                    totalAttacks += n; // Increment total number of attacks
+                    attackData[i] = penetrations; // Compute number of attacks suffered by the system ORIGINALLY: n - penetrations (?)
+                }
+
+                // Compute relative frequency of penetrations for each system
+                var relativeFrequencyData = attackData.map(attacks => attacks / totalAttacks);
+
+                // Create a Chart.js line chart for the relative frequency of penetrations
+                var ctx = document.getElementById('scoreChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: n }, (_, i) => i + 1),
+                        datasets: Array.from({ length: m }, (_, i) => ({
+                            label: 'System ' + (i + 1),
+                            data: scoreData.map(scores => scores[i]),
+                            borderColor: colors[i],
+                            borderWidth: 2,
+                            fill: false
+                        }))
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Attacks'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Relative Frequency'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Create a Chart.js bar chart for the number of attacks suffered by each system
+                var ctx2 = document.getElementById('histogramChart').getContext('2d');
+                var chart2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
+                        datasets: [{
+                            label: 'Number of Attacks',
+                            data: attackData,
+                            backgroundColor: colors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'System'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Attacks'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Q4: Normalized Ratio, frequency of penetration / sqrt(number of attacks)
+            function NormalizedRatio(m, n, p) {
+                var results = document.getElementById("results_q1");
+                results.innerHTML = "";
+
+                // Create an array to store the scores for plotting
+                var scoreData = Array.from({ length: n }, () => []);
+                var attackData = Array.from({ length: m }, () => 0); // Initialize array for attack data
+
+                // Generate an array of random colors
+                var colors = Array.from({ length: m }, () => {
+                    var r = Math.floor(Math.random() * 256);
+                    var g = Math.floor(Math.random() * 256);
+                    var b = Math.floor(Math.random() * 256);
+                    return `rgba(${r}, ${g}, ${b}, 1)`;
+                });
+
+                // Count the total number of penetrations across all systems
+                var totalPenetrations = 0;
+
+                for (var i = 0; i < m; i++) {
+                    var system = new System(n, p);
+                    var systemDiv = document.createElement("div");
+                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
+                    results.appendChild(systemDiv);
+
+                    // Count the number of times the score goes below zero
+                    var penetrations = 0;
+                    for (var j = 0; j < n; j++) {
+                        if (system.scoreTrajectory[j] < 0) {
+                            penetrations++;
+                        }
+                        scoreData[j].push(penetrations);
+                    }
+                    totalPenetrations += penetrations;
+                    attackData[i] = penetrations; // Compute number of attacks suffered by the system ORIGINALLY: n - penetrations (?)
+                }
+
+                for (var i = 0; i < m; i++) {
+                    for (var j = 0; j < n; j++) {
+                        scoreData[j][i] /= Math.sqrt(totalPenetrations);
+                    }
+                }
+
+                // Create a Chart.js line chart
+                var ctx = document.getElementById('scoreChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: n }, (_, i) => i + 1),
+                        datasets: Array.from({ length: m }, (_, i) => ({
+                            label: 'System ' + (i + 1),
+                            data: scoreData.map(scores => scores[i]),
+                            borderColor: colors[i],
+                            borderWidth: 2,
+                            fill: false
+                        }))
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Attacks'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Normalized Ratio'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Create a Chart.js bar chart for the number of attacks suffered by each system
+                var ctx2 = document.getElementById('histogramChart').getContext('2d');
+                var chart2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
+                        datasets: [{
+                            label: 'Number of Attacks',
+                            data: attackData,
+                            backgroundColor: colors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'System'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Attacks'
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            
+
+            </script>
+        
+        <br><br>
+        <p> In the box below the output will be in the form "System ID" : "Security Score of ID"</p>
+        <div id="results_q1" style="border: 1px solid purple;">
+            <p>The results of the simulation will be shown here:</p>
+        </div><br><br>
+
+        <div>
+            <canvas id="scoreChart" width="400" height="200"></canvas>
+        </div>
+
+        <div>
+            <canvas id="histogramChart" width="400" height="200"></canvas>
+        </div>
+
+        <script>
+            // Additional Request: Canvas should be Resizable
+            
+        </script>
 
         <script src="../prism.js"></script>
     </body>
