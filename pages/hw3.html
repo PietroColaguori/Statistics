@@ -8,20 +8,79 @@
     <style>
         .container {
             display: flex;
-        }
-        .canvas-container {
-            flex-grow: 1;
-            display: flex;
             flex-direction: column;
-            position: relative;
-            border: 1px solid #000;
+            align-items: center;
         }
         canvas {
             border: 1px solid #000;
             flex-grow: 1;
         }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background-color: #800995;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #5e0a6d;
+        }
+        input {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        #simulationControls {
+            border: 1px solid black;
+            padding: 10px;
+            border-radius: 10px;
+            background-color:mediumslateblue;
+            color:whitesmoke;
+        }
+        #description {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .canvas-container {
+            display: inline-block;
+            resize: both;
+            overflow: auto;
+            border: 1px solid #ccc;
+            margin: 10px;
+            position: relative;
+            background-color: whitesmoke;
+            width: 60%;
+            height: 60%;
+            display: block;
+        }
+
+        .canvas-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .canvas-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .canvas-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
     </style>
     <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../prism.css"> 
 </head>
 <body>
     <h1>Homework 3</h1>
@@ -29,38 +88,76 @@
     <hr>
 
     <p class="question">
-        This is a description of the homework question.
+        Part a<br><br>
+M systems are subject to a series of N attacks.<br> On the x-axis, we indicate the attacks and on the Y-axis we
+simulate the accumulation of a "security score" (-1, 1), where the score is -1 if the system is penetrated
+and 1 if the system was successfully "shielded" or protected.<br> Simulate the score "trajectories" for all systems,
+assuming, for simplicity, a constant penetration probability p at each attack.<br><br>
+
+Part b<br><br>
+Same as before, but simulate the cumulated frequency, say f, of penetration. <br>Do the same with the relative
+frequency f/number of attacks and the "normalized" ratio: f/ √number of attacks.<br>
     </p>
     <hr>
 
-    <p>Insert the number of systems (M): </p>
-    <input type="number" id="M" placeholder="M" value="5">
-    <p>Insert the number of attacks N for each system (N): </p>
-    <input type="number" id="N" placeholder="N" value="10">
-    <p>Insert the penetration probability for a generic system (p):</p>
-    <input type="number" id="p" placeholder="p" value="0.3" max="1" min="0">
-    <p>Insert the attack number for the histogram:</p>
-    <input type="number" id="attackNumber" placeholder="Attack Number" value="1">
-    <br><br>
-    <button onclick="updateAllCharts()">Update Charts</button>
+    <div id="simulationControls">
+        <p>Insert the number of systems (M): </p>
+        <input type="number" id="M" placeholder="M" value="5">
+        <p>Insert the number of attacks N for each system (N): </p>
+        <input type="number" id="N" placeholder="N" value="10">
+        <p>Insert the penetration probability for a generic system (p):</p>
+        <input type="number" id="p" placeholder="p" value="0.3" max="1" min="0">
+        <p>Insert the attack number for the histogram:</p>
+        <input type="number" id="attackNumber" placeholder="Attack Number" value="1">
+        <br><br>
+        <button onclick="updateAllCharts()">Update Charts</button>
+    </div>
     <br><br>
 
-    <div class="container">
+    <div class="centered">
+
+        <h3 id="description">Security Score</h3>
+    </div>
+
+    <div class="canvas-center">
         <div class="canvas-container">
-            <p>Security Score Trajectories</p>
-            <canvas id="securityChartOriginal"></canvas>
+            <div class="canvas-row">
+                    <canvas id="securityChartOriginal" width="800" height="400"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="canvas-container">
-            <p>Absolute Frequencies</p>
-            <canvas id="securityChart1b"></canvas>
+
+        <div class="centered">
+
+            <h3 id="description">Cumulative Frequency</h3>
         </div>
+    <div class="canvas-center">
         <div class="canvas-container">
-            <p>Relative Frequencies</p>
-            <canvas id="securityChart1c"></canvas>
+            <div class="canvas-row">
+                    <canvas id="securityChart1b" width="800" height="400"></canvas>
+                </div>
+            </div>
         </div>
+        <div class="centered">
+
+            <h3 id="description">Relative Frequency</h3>
+        </div>
+    <div class="canvas-center">
         <div class="canvas-container">
-            <p>Normalized Ratio</p>
-            <canvas id="securityChart1d"></canvas>
+            <div class="canvas-row">
+                    <canvas id="securityChart1c" width="800" height="400" ></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="centered">
+
+            <h3 id="description">Normalized Frequency</h3>
+        </div>
+    <div class="canvas-center">
+        <div class="canvas-container canvas">
+            <div class="canvas-row">
+                <canvas id="securityChart1d" width="800" height="400" ></canvas>
+            </div>
         </div>
     </div>
 
@@ -321,9 +418,423 @@
         };
     </script>
 
+    <p>By clicking the buttons both the JavaScript code and the C# code can be displayed.</p><br>
     <hr>
-    <p>I proceed with showing how the same application can be implemented using C#. Creating a Windows executable.</p><br>
+    <!-- JAVASCRIPT CODE DISPLAY -->
+    <button onclick="displayJS()">Javascript</button>
 
+    <div id="javascript-code" style="display:none;">
+        <pre><code class="language-javascript">
+            // For brevity, I will only show the foundamental functions, the whole code can be found in my GitHub repository.
+            function simulateScore(N, p, type = "original") {
+                let score = 0;
+                const scores = [];
+                for (let i = 0; i < N; i++) {
+                    const probability = Math.random();
+                    switch (type) {
+                        case "original":
+                            score += (probability < p) ? -1 : 1;
+                            break;
+                        case "1b":
+                            score += (probability < p) ? 0 : 1;
+                            break;
+                        case "1c":
+                            score += (probability < p) ? 0 : 1;
+                            score /= (i + 1);
+                            break;
+                        case "1d":
+                            score += (probability < p) ? 0 : 1;
+                            score /= Math.sqrt(i + 1);
+                            break;
+                    }
+                    scores.push(score);
+                }
+                return scores;
+            }
+
+            function drawChart(M, N, p, type, ctx, canvas) {
+                const attackNumber = parseInt(document.getElementById('attackNumber').value);
     
+                // Introduce scaling factor
+                const chartWidth = canvas.width * scaleFactor ;  
+                const chartHeight = canvas.height * scaleFactor;
+    
+                // Adjust for scaling factor
+                const xOffset = 50;
+                const yOffset = chartHeight / 2;
+                const xScale = (chartWidth - xOffset) / N;
+                const yScale = yOffset / N;
+    
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const allScores = [];
+    
+                const colors = generateColors(M);
+    
+                // Axis and labels
+                ctx.strokeStyle = 'black';
+                ctx.beginPath();
+                ctx.moveTo(xOffset, 0);
+                ctx.lineTo(xOffset, canvas.height);
+                ctx.moveTo(xOffset, yOffset);
+                ctx.lineTo(xOffset + chartWidth, yOffset);
+                ctx.stroke();
+    
+                // Drawing horizontal lines for every y-value
+                for (let i = -N; i <= N; i += 2) {
+                    ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';  // Light gray color for lines
+                    ctx.beginPath();
+                    ctx.moveTo(xOffset, yOffset - i * yScale);
+                    ctx.lineTo(xOffset + chartWidth, yOffset - i * yScale);
+                    ctx.stroke();
+                }
+    
+                // Label the Y axis
+                ctx.textAlign = "right";
+                for (let i = -N; i <= N; i += 2) {
+                    if (i === N) {
+                        ctx.textBaseline = "top";  // Adjust for max value
+                    } else if (i === -N) {
+                        ctx.textBaseline = "bottom";   // Adjust for min value
+                    } else {
+                        ctx.textBaseline = "middle";
+                    }
+                    ctx.fillText(i, xOffset - 10, yOffset - i * yScale);
+                }
+    
+                // Label the X axis
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+                for (let i = 1; i <= N; i++) {
+                    let horizontalAdjustment = 0;
+                    if (i === N) {
+                        horizontalAdjustment = -15; // Adjust left for max value; change the value as needed
+                    }
+                    ctx.fillText(i, xOffset + i * xScale + horizontalAdjustment, yOffset + 10);
+                }
+    
+                // Simulate scores for all M systems and plot them
+                for (let system = 0; system < M; system++) {
+                    const scores = simulateScore(N, p, type);
+                    allScores.push(scores);
+                    ctx.strokeStyle = colors[system];
+                    ctx.beginPath();
+                    ctx.moveTo(xOffset, yOffset);
+    
+                    for (let attack = 0; attack < N; attack++) {
+                        ctx.lineTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+    
+                        // Save the current context state
+                        ctx.save();
+                        // Drawing a circle for each point
+                        ctx.arc(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale, 1, 0, 2 * Math.PI);
+                        ctx.fillStyle = colors[system];
+                        ctx.fill();
+                        // Restore the context state to continue the line
+                        ctx.restore();
+    
+                        // Move to the next point for line continuation
+                        ctx.moveTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+                    }
+    
+                    ctx.stroke();
+                }
+    
+                // Count the final scores for the histogram
+                const endScores = allScores.map(scores => scores[N-1]);
+                const intervals = countScoreIntervals(endScores);
+    
+                // Draw the histogram bars for each interval for the final scores
+                const maxBarWidth = canvas.width - (xOffset + N * xScale);
+                for (let intervalKey in intervals) {
+                    const [start, end] = intervalKey.split(',').map(Number);
+                    const midpoint = (start + end) / 2;
+                    const count = intervals[intervalKey];
+    
+                    const barLength = (count / M) * maxBarWidth; 
+                    const barStartY = yOffset - midpoint * yScale;
+                    const barStartX = xOffset + N * xScale;  // Start at the last abscissa
+    
+                    ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                    ctx.fillRect(barStartX, barStartY, barLength, yScale);
+                }
+    
+                // Draw the histogram bars for the specific attack number
+                const attackScores = allScores.map(scores => scores[attackNumber - 1]);
+                const attackIntervals = countScoreIntervals(attackScores);
+    
+                for (let intervalKey in attackIntervals) {
+                    const [start, end] = intervalKey.split(',').map(Number);
+                    const midpoint = (start + end) / 2;
+                    const count = attackIntervals[intervalKey];
+    
+                    const barLength = ((count / M) * maxBarWidth);
+                    const barStartY = yOffset - midpoint * yScale;
+                    const barStartX = xOffset + attackNumber * xScale ;
+    
+                    ctx.fillStyle = 'rgba(100, 150, 255, 0.5)';
+                    ctx.fillRect(barStartX, barStartY, barLength, yScale);
+                }
+            }
+    
+            function updateChart() {
+                const M = parseInt(document.getElementById('M').value);
+                const N = parseInt(document.getElementById('N').value);
+                const p = parseFloat(document.getElementById('p').value);
+                drawChart(M, N, p);
+            }
+    
+            function updateAllCharts() {
+                const M = parseInt(document.getElementById('M').value);
+                const N = parseInt(document.getElementById('N').value);
+                const p = parseFloat(document.getElementById('p').value);
+    
+                drawChart(M, N, p, "original", ctxOriginal, canvasOriginal);
+                drawChart(M, N, p, "1b", ctx1b, canvas1b);
+                drawChart(M, N, p, "1c", ctx1c, canvas1c);
+                drawChart(M, N, p, "1d", ctx1d, canvas1d);
+            }
+        </code></pre>
+    </div>
+
+    <script>
+    let isDisplayed = false;
+    function displayJS() {
+        var textDiv = document.getElementById("javascript-code");
+        if (isDisplayed) {
+            textDiv.style.display = "none";
+            isDisplayed = false;
+        } else {
+            textDiv.style.display = "block";
+            isDisplayed = true;
+        }
+    }
+    </script>
+    
+    <hr>
+    <button onclick="displayCS()">C#</button>
+    <div id="csharp-code" style="display:none;">
+        <pre><code class="language-csharp">
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace Homework3App
+{
+    public partial class MainForm : Form
+    {
+        private int M = 5;
+        private int N = 10;
+        private double p = 0.3;
+        private int attackNumber = 1;
+        private double scaleFactor = 0.9;
+
+        private Graphics[] graphicsArray;
+        private Bitmap[] bitmapArray;
+        private double[][] allScores;
+
+        public MainForm()
+        {
+            InitializeComponent();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            InitializeGraphs();
+            UpdateAllCharts();
+        }
+
+        private void InitializeGraphs()
+        {
+            int graphCount = 4;
+
+            graphicsArray = new Graphics[graphCount];
+            bitmapArray = new Bitmap[graphCount];
+            allScores = new double[graphCount][];
+
+            for (int i = 0; i < graphCount; i++)
+            {
+                PictureBox pictureBox = new PictureBox();
+                pictureBox.Location = new Point(10, 10 + i * 160);
+                pictureBox.Size = new Size(400, 150);
+                this.Controls.Add(pictureBox);
+
+                bitmapArray[i] = new Bitmap(pictureBox.Width, pictureBox.Height);
+                graphicsArray[i] = Graphics.FromImage(bitmapArray[i]);
+                allScores[i] = new double[N];
+            }
+        }
+
+        private void SimulateScore(int index)
+        {
+            double score = 0;
+
+            for (int i = 0; i < N; i++)
+            {
+                double probability = new Random().NextDouble();
+
+                switch (index)
+                {
+                    case 0: // Original
+                        score += probability < p ? -1 : 1;
+                        break;
+                    case 1: // 1b
+                        score += probability < p ? 0 : 1;
+                        break;
+                    case 2: // 1c
+                        score += probability < p ? 0 : 1;
+                        score /= (i + 1);
+                        break;
+                    case 3: // 1d
+                        score += probability < p ? 0 : 1;
+                        score /= Math.Sqrt(i + 1);
+                        break;
+                }
+
+                allScores[index][i] = score;
+            }
+        }
+
+        private void DrawChart(int index)
+        {
+            double chartWidth = bitmapArray[index].Width * scaleFactor;
+            double chartHeight = bitmapArray[index].Height * scaleFactor;
+
+            double xOffset = 50;
+            double yOffset = chartHeight / 2;
+            double xScale = (chartWidth - xOffset) / N;
+            double yScale = yOffset / N;
+
+            graphicsArray[index].Clear(Color.White);
+            Pen pen = new Pen(Color.Black);
+
+            // Draw axis and labels
+
+            // Y-axis
+            graphicsArray[index].DrawLine(pen, (float)xOffset, 0, (float)xOffset, (float)chartHeight);
+            graphicsArray[index].DrawLine(pen, (float)xOffset, (float)yOffset, (float)(xOffset + chartWidth), (float)yOffset);
+
+            for (int i = -N; i <= N; i += 2)
+            {
+                graphicsArray[index].DrawLine(new Pen(Color.LightGray, 1.0f), (float)xOffset, (float)(yOffset - i * yScale),
+                    (float)(xOffset + chartWidth), (float)(yOffset - i * yScale));
+
+                StringFormat format = new StringFormat();
+                format.Alignment = StringAlignment.Far;
+
+                if (i == N)
+                    graphicsArray[index].DrawString(i.ToString(), new Font("Arial", 8), Brushes.Black, (float)xOffset - 10, (float)(yOffset - i * yScale - 10), format);
+                else if (i == -N)
+                    graphicsArray[index].DrawString(i.ToString(), new Font("Arial", 8), Brushes.Black, (float)xOffset - 10, (float)(yOffset - i * yScale), format);
+                else
+                    graphicsArray[index].DrawString(i.ToString(), new Font("Arial", 8), Brushes.Black, (float)xOffset - 10, (float)(yOffset - i * yScale - 5), format);
+            }
+
+            // X-axis
+            for (int i = 1; i <= N; i++)
+            {
+                StringFormat format = new StringFormat();
+                format.LineAlignment = StringAlignment.Near;
+
+                if (i == N)
+                    graphicsArray[index].DrawString(i.ToString(), new Font("Arial", 8), Brushes.Black, (float)(xOffset + i * xScale - 10), (float)(yOffset + 10), format);
+                else
+                    graphicsArray[index].DrawString(i.ToString(), new Font("Arial", 8), Brushes.Black, (float)(xOffset + i * xScale), (float)(yOffset + 10));
+            }
+
+            // Plot scores
+            Pen[] pens = { Pens.Red, Pens.Blue, Pens.Green, Pens.Orange };
+
+            for (int system = 0; system < M; system++)
+            {
+                SimulateScore(index);
+
+                double xPrev = xOffset;
+                double yPrev = yOffset;
+
+                for (int attack = 0; attack < N; attack++)
+                {
+                    double x = xOffset + (attack + 1) * xScale;
+                    double y = yOffset - allScores[index][attack] * yScale;
+
+                    graphicsArray[index].DrawLine(pens[system], (float)xPrev, (float)yPrev, (float)x, (float)y);
+
+                    graphicsArray[index].FillEllipse(new SolidBrush(pens[system].Color), (float)x - 2, (float)y - 2, 4, 4);
+
+                    xPrev = x;
+                    yPrev = y;
+                }
+            }
+
+            pictureBoxArray[index].Image = bitmapArray[index];
+        }
+
+        private void UpdateChart()
+        {
+            M = int.Parse(textBoxM.Text);
+            N = int.Parse(textBoxN.Text);
+            p = double.Parse(textBoxP.Text);
+            attackNumber = int.Parse(textBoxAttackNumber.Text);
+
+            for (int i = 0; i < 4; i++)
+            {
+                DrawChart(i);
+            }
+        }
+
+        private void UpdateAllCharts()
+        {
+            UpdateChart();
+        }
+    }
+}
+
+        </code></pre>
+    </div>
+
+    <script>
+        function displayCS() {
+            var textDiv = document.getElementById("csharp-code");
+            if (textDiv.style.display === "block") {
+                textDiv.style.display = "none";
+            } else {
+                textDiv.style.display = "block";
+            }
+        }
+    </script>
+    <hr>
+
+    <p class="question">
+        Recall briefly the definition and math notions relevant to "probability space" and make some simple examples, indicating among the triple of the space the meaning of each element in your particular example.<br>
+If you wanted to model probabilistically the homework Exercise 1, explain what are the 3 sets of your probability space and their elements, in this case.
+    </p><hr>
+
+    <pre>
+        A probability space is a mathematical construct that models a random process or "experiment". It consists of three elements¹²:
+
+        1. A sample space <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi></mrow><annotation encoding="application/x-tex">\Omega</annotation></semantics></math>, which is the set of all possible outcomes.
+
+        2. An event space <i>F</i>, which is a set of events, an event being a set of outcomes in the sample space.
+        3. A probability function <i>P</i>, which assigns each event in the event space a probability, which is a number between 0 and 1¹.
+
+        Let's consider an example where we toss a coin twice:
+
+        - The sample space <math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi></mrow><annotation encoding="application/x-tex">\Omega</annotation></semantics></math> would be {HH, HT, TH, TT}, representing all possible outcomes³.
+        - The event space <i>F</i> could include events such as {HH} (both tosses are heads), {HT, TH} (one head and one tail in any order), and so on⁶.
+        - The probability function <i>P</i> would assign each event in <i>F</i> a probability. For example, <i>P = 1/4</i>, assuming that the coin is fair³.
+
+        <a href="https://en.wikipedia.org/wiki/Probability_space">(1) Probability space - Wikipedia.</a>"
+        <a href="https://www.statlect.com/glossary/probability-space">(2) Probability space | Definition, axioms, explanation - Statlect.</a>
+        <a href="https://www.statisticshowto.com/probability-space/">(3) Probability Space: Simple Definition, Examples - Statistics How To.</a>"
+        <a href="https://www.statisticshowto.com/event-space-probability/">(4) Event Space (Probability): Simple Definition & Examples.</a>
+        <a href="//www.definitions.net/definition/probability%20space">(5) What does probability space mean? - Definitions.net. </a>
+        <a href="https://proofwiki.org/wiki/Definition:Probability_Space">(6) Definition:Probability Space - ProofWiki. </a>
+
+        If we wanted to model probabilistically the homework Exercise 1, we could consider the following probability space:
+        Sample Space (Ω): The sample space represents all the possible outcomes of the system's responses to the attacks. In this case, it consists of sequences of security scores for each system over a series of attacks.
+        Sigma Algebra (F): The sigma algebra, or event space, includes subsets of the sample space that represent different events or properties of the system's behavior. These subsets might include events like "all systems were penetrated," "none of the systems were penetrated," or "the cumulative frequency of penetration was within a certain range."
+        Probability Measure (P): The probability measure assigns probabilities to the events in the sigma algebra. It provides a measure of the likelihood of different events occurring in the context of the problem. For example, P("all systems were penetrated") might represent the likelihood of all systems being successfully attacked.
+    </pre><hr>
+
+    <script src="../prism.js"></script>
 </body>
 </html>
