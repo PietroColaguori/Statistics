@@ -1,512 +1,329 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv='cache-control' content='no-cache'> 
-        <meta http-equiv='expires' content='0'> 
-        <meta http-equiv='pragma' content='no-cache'>
-        <title>Homework 3</title>
-        <link rel="stylesheet" href="../style.css">
-        <link rel="stylesheet" href="../prism.css"> 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    </head>
-    <body>
-        <h1>Homework 3</h1>
-        <h2>Author: Pietro Colaguori 1936709</h2>
-        <a href="../index.html">Home</a>
-        <hr>
+<head>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Homework 3</title>
+    <style>
+        .container {
+            display: flex;
+        }
+        .canvas-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 1px solid #000;
+        }
+        canvas {
+            border: 1px solid #000;
+            flex-grow: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <h1>Homework 3</h1>
+    <h2>Author: Pietro Colaguori</h2>
+    <hr>
 
-        <p class="question">
-            M systems are subject to a series of N attacks. On the x-axis, we indicate the attacks and on the Y-axis we
-            simulate the accumulation of a "security score" (-1, 1), where the score is -1 if the system is penetrated
-            and 1 if the system was successfully "shielded" or protected. Simulate the score "trajectories" for all systems,
-            assuming, for simplicity, a constant penetration probability p at each attack.
-        </p>
-        <hr>
+    <p class="question">
+        This is a description of the homework question.
+    </p>
+    <hr>
 
-        <p>Insert the number of systems (M): </p>
-        <input type="number" id="M" placeholder="M" value="5">
-        <p>Insert the number of attacks N for each system (N): </p>
-        <input type="number" id="N" placeholder="N" value="10">
-        <p> Insert the penetration probability for a generic system (p):</p>
-        <input type="number" id="p" placeholder="p" value="0.3" max="1" min="0">
-        <br><br>
-        <button onclick="return SimulateSystems(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Security Score</button>
-        <button onclick="return CumulatedFrequency(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Cumulated Frequency</button>
-        <button onclick="return RelativeFrequency(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Relative Frequency</button>
-        <button onclick="return NormalizedRatio(document.getElementById('M').value, document.getElementById('N').value, document.getElementById('p').value)">Normalized Ratio</button>
+    <p>Insert the number of systems (M): </p>
+    <input type="number" id="M" placeholder="M" value="5">
+    <p>Insert the number of attacks N for each system (N): </p>
+    <input type="number" id="N" placeholder="N" value="10">
+    <p>Insert the penetration probability for a generic system (p):</p>
+    <input type="number" id="p" placeholder="p" value="0.3" max="1" min="0">
+    <p>Insert the attack number for the histogram:</p>
+    <input type="number" id="attackNumber" placeholder="Attack Number" value="1">
+    <br><br>
+    <button onclick="updateAllCharts()">Update Charts</button>
+    <br><br>
 
-            <script>
-            // Q1: Simulate the score "trajectories" for all systems, assuming, for simplicity, a constant penetration probability p at each attack.
-            function SimulateSystems(m, n, p) {
-                var results = document.getElementById("results_q1");
-                results.innerHTML = "";
-
-                // Create an array to store the scores for plotting
-                var scoreData = Array.from({ length: n }, () => []);
-
-                // Create an array to store the number of attacks for each system
-                var attackData = Array.from({ length: m }, () => 0);
-
-                // Generate an array of random colors
-                var colors = Array.from({ length: m }, () => {
-                    var r = Math.floor(Math.random() * 256);
-                    var g = Math.floor(Math.random() * 256);
-                    var b = Math.floor(Math.random() * 256);
-                    return `rgba(${r}, ${g}, ${b}, 1)`;
-                });
-
-                for (var i = 0; i < m; i++) {
-                    var system = new System(n, p);
-                    var systemDiv = document.createElement("div");
-                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
-                    results.appendChild(systemDiv);
-
-                    // Update the scoreData with the scores from this system
-                    for (var j = 0; j < n; j++) {
-                        scoreData[j].push(system.scoreTrajectory[j]);
-                    }
-
-                    // Update the attackData with the number of attacks for this system
-                    attackData[i] = system.nAttacks;
-                }
-
-                // Create a Chart.js line chart for the security scores
-                var scoreCtx = document.getElementById('scoreChart').getContext('2d');
-                var scoreChart = new Chart(scoreCtx, {
-                    type: 'line',
-                    data: {
-                        labels: Array.from({ length: n }, (_, i) => i + 1),
-                        datasets: Array.from({ length: m }, (_, i) => ({
-                            label: 'System ' + (i + 1),
-                            data: scoreData.map(scores => scores[i]),
-                            borderColor: colors[i],
-                            borderWidth: 2,
-                            fill: false
-                        }))
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Attacks'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Security Score'
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Create a Chart.js histogram chart for the number of attacks
-                var attackCtx = document.getElementById('histogramChart').getContext('2d');
-                var attackChart = new Chart(attackCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
-                        datasets: [{
-                            label: 'Number of Attacks',
-                            data: attackData,
-                            backgroundColor: colors,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'System'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Number of Attacks'
-                                },
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            function System(n, p) {
-                this.n = n;
-                this.p = p;
-                this.scoreTrajectory = [];
-                this.nAttacks = 0;
-
-                this.Simulate = function () {
-                    var score = 0;
-                    for (var i = 0; i < this.n; i++) {
-                        if (Math.random() <= this.p) {
-                            score--;
-                            this.nAttacks++;
-                        } else {
-                            score++;
-                        }
-                        this.scoreTrajectory.push(score);
-                    }
-                    return score;
-                }
-            }
-
-            // Q2: Cumulated Frequency
-            function CumulatedFrequency(m, n, p) {
-                var results = document.getElementById("results_q1");
-                results.innerHTML = "";
-
-                // Create an array to store the scores for plotting
-                var scoreData = Array.from({ length: n }, () => []);
-
-                // Generate an array of random colors
-                var colors = Array.from({ length: m }, () => {
-                    var r = Math.floor(Math.random() * 256);
-                    var g = Math.floor(Math.random() * 256);
-                    var b = Math.floor(Math.random() * 256);
-                    return `rgba(${r}, ${g}, ${b}, 1)`;
-                });
-
-                // Create an array to store the number of attacks suffered by each system
-                var attackData = Array.from({ length: m }, () => 0);
-
-                for (var i = 0; i < m; i++) {
-                    var system = new System(n, p);
-                    var systemDiv = document.createElement("div");
-                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
-                    results.appendChild(systemDiv);
-
-                    // Count the number of times the score goes below zero
-                    var penetrations = 0;
-                    for (var j = 0; j < n; j++) {
-                        if (system.scoreTrajectory[j] < 0) {
-                            penetrations++;
-                        }
-                        scoreData[j].push(penetrations);
-                    }
-
-                    // Count the number of attacks suffered by the system
-                    attackData[i] = system.nAttacks;
-                }
-
-                // Create a Chart.js line chart for the cumulated frequency
-                var ctx = document.getElementById('scoreChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: Array.from({ length: n }, (_, i) => i + 1),
-                        datasets: Array.from({ length: m }, (_, i) => ({
-                            label: 'System ' + (i + 1),
-                            data: scoreData.map(scores => scores[i]),
-                            borderColor: colors[i],
-                            borderWidth: 2,
-                            fill: false
-                        }))
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Attacks'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Number of Penetrations'
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Create a Chart.js bar chart for the number of attacks suffered by each system
-                var ctx2 = document.getElementById('histogramChart').getContext('2d');
-                var chart2 = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
-                        datasets: [{
-                            label: 'Number of Attacks',
-                            data: attackData,
-                            backgroundColor: colors,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'System'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Number of Attacks'
-                                },
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Q3: Relative Frequency #numberOfPenetrationsForSystem / #numberOfTotalPenetrations
-            function RelativeFrequency(m, n, p) {
-                var results = document.getElementById("results_q1");
-                results.innerHTML = "";
-
-                // Create an array to store the scores for plotting
-                var scoreData = Array.from({ length: n }, () => []);
-                var attackData = Array.from({ length: m }, () => 0); // Initialize array for attack data
-
-                // Generate an array of random colors
-                var colors = Array.from({ length: m }, () => {
-                    var r = Math.floor(Math.random() * 256);
-                    var g = Math.floor(Math.random() * 256);
-                    var b = Math.floor(Math.random() * 256);
-                    return `rgba(${r}, ${g}, ${b}, 1)`;
-                });
-
-                // Count the total number of penetrations across all systems
-                var totalPenetrations = 0;
-                var totalAttacks = 0; // Initialize variable for total number of attacks
-
-                for (var i = 0; i < m; i++) {
-                    var system = new System(n, p);
-                    var systemDiv = document.createElement("div");
-                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
-                    results.appendChild(systemDiv);
-
-                    // Count the number of times the score goes below zero
-                    var penetrations = 0;
-                    for (var j = 0; j < n; j++) {
-                        if (system.scoreTrajectory[j] < 0) {
-                            penetrations++;
-                        }
-                        scoreData[j].push(penetrations);
-                    }
-                    totalPenetrations += penetrations;
-                    totalAttacks += n; // Increment total number of attacks
-                    attackData[i] = penetrations; // Compute number of attacks suffered by the system ORIGINALLY: n - penetrations (?)
-                }
-
-                // Compute relative frequency of penetrations for each system
-                var relativeFrequencyData = attackData.map(attacks => attacks / totalAttacks);
-
-                // Create a Chart.js line chart for the relative frequency of penetrations
-                var ctx = document.getElementById('scoreChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: Array.from({ length: n }, (_, i) => i + 1),
-                        datasets: Array.from({ length: m }, (_, i) => ({
-                            label: 'System ' + (i + 1),
-                            data: scoreData.map(scores => scores[i]),
-                            borderColor: colors[i],
-                            borderWidth: 2,
-                            fill: false
-                        }))
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Attacks'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Relative Frequency'
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Create a Chart.js bar chart for the number of attacks suffered by each system
-                var ctx2 = document.getElementById('histogramChart').getContext('2d');
-                var chart2 = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
-                        datasets: [{
-                            label: 'Number of Attacks',
-                            data: attackData,
-                            backgroundColor: colors,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'System'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Number of Attacks'
-                                },
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Q4: Normalized Ratio, frequency of penetration / sqrt(number of attacks)
-            function NormalizedRatio(m, n, p) {
-                var results = document.getElementById("results_q1");
-                results.innerHTML = "";
-
-                // Create an array to store the scores for plotting
-                var scoreData = Array.from({ length: n }, () => []);
-                var attackData = Array.from({ length: m }, () => 0); // Initialize array for attack data
-
-                // Generate an array of random colors
-                var colors = Array.from({ length: m }, () => {
-                    var r = Math.floor(Math.random() * 256);
-                    var g = Math.floor(Math.random() * 256);
-                    var b = Math.floor(Math.random() * 256);
-                    return `rgba(${r}, ${g}, ${b}, 1)`;
-                });
-
-                // Count the total number of penetrations across all systems
-                var totalPenetrations = 0;
-
-                for (var i = 0; i < m; i++) {
-                    var system = new System(n, p);
-                    var systemDiv = document.createElement("div");
-                    systemDiv.innerHTML = "System " + (i + 1) + ": " + system.Simulate();
-                    results.appendChild(systemDiv);
-
-                    // Count the number of times the score goes below zero
-                    var penetrations = 0;
-                    for (var j = 0; j < n; j++) {
-                        if (system.scoreTrajectory[j] < 0) {
-                            penetrations++;
-                        }
-                        scoreData[j].push(penetrations);
-                    }
-                    totalPenetrations += penetrations;
-                    attackData[i] = penetrations; // Compute number of attacks suffered by the system ORIGINALLY: n - penetrations (?)
-                }
-
-                for (var i = 0; i < m; i++) {
-                    for (var j = 0; j < n; j++) {
-                        scoreData[j][i] /= Math.sqrt(totalPenetrations);
-                    }
-                }
-
-                // Create a Chart.js line chart
-                var ctx = document.getElementById('scoreChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: Array.from({ length: n }, (_, i) => i + 1),
-                        datasets: Array.from({ length: m }, (_, i) => ({
-                            label: 'System ' + (i + 1),
-                            data: scoreData.map(scores => scores[i]),
-                            borderColor: colors[i],
-                            borderWidth: 2,
-                            fill: false
-                        }))
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Attacks'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Normalized Ratio'
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Create a Chart.js bar chart for the number of attacks suffered by each system
-                var ctx2 = document.getElementById('histogramChart').getContext('2d');
-                var chart2 = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: Array.from({ length: m }, (_, i) => 'System ' + (i + 1)),
-                        datasets: [{
-                            label: 'Number of Attacks',
-                            data: attackData,
-                            backgroundColor: colors,
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'System'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Number of Attacks'
-                                },
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            
-
-            </script>
-        
-        <br><br>
-        <p> In the box below the output will be in the form "System ID" : "Security Score of ID"</p>
-        <div id="results_q1" style="border: 1px solid purple;">
-            <p>The results of the simulation will be shown here:</p>
-        </div><br><br>
-
-        <div>
-            <canvas id="scoreChart" width="400" height="200"></canvas>
+    <div class="container">
+        <div class="canvas-container">
+            <p>Security Score Trajectories</p>
+            <canvas id="securityChartOriginal"></canvas>
         </div>
-
-        <div>
-            <canvas id="histogramChart" width="400" height="200"></canvas>
+        <div class="canvas-container">
+            <p>Absolute Frequencies</p>
+            <canvas id="securityChart1b"></canvas>
         </div>
+        <div class="canvas-container">
+            <p>Relative Frequencies</p>
+            <canvas id="securityChart1c"></canvas>
+        </div>
+        <div class="canvas-container">
+            <p>Normalized Ratio</p>
+            <canvas id="securityChart1d"></canvas>
+        </div>
+    </div>
 
-        <script>
-            // Additional Request: Canvas should be Resizable
-            
-        </script>
+    <script>
+        const canvasOriginal = document.getElementById('securityChartOriginal');
+        const canvas1b = document.getElementById('securityChart1b');
+        const canvas1c = document.getElementById('securityChart1c');
+        const canvas1d = document.getElementById('securityChart1d');
 
-        <script src="../prism.js"></script>
-    </body>
+        const ctxOriginal = canvasOriginal.getContext('2d');
+        const ctx1b = canvas1b.getContext('2d');
+        const ctx1c = canvas1c.getContext('2d');
+        const ctx1d = canvas1d.getContext('2d');
+
+        const scaleFactor = 0.9; // Adjust this value as needed, where 1 is full size and 0.5 is half size, etc.
+
+        let isDragging = false;
+        let startX, startY;
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            const style = e.target.parentElement.style;
+            style.left = (parseInt(style.left) + dx) + 'px';
+            style.top = (parseInt(style.top) + dy) + 'px';
+
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        const canvasContainers = document.querySelectorAll('.canvas-container');
+        canvasContainers.forEach(container => {
+            container.addEventListener('resize', function() {
+                scaleCanvasContent(container.querySelector('canvas'));
+            });
+            container.addEventListener('mousedown', startDrag);
+            container.addEventListener('mousemove', drag);
+            container.addEventListener('mouseup', stopDrag);
+            container.addEventListener('mouseleave', stopDrag); // Stops dragging if the mouse leaves the canvas
+        });
+
+        function scaleCanvasContent(canvas) {
+            const ctx = canvas.getContext('2d');
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempCtx.drawImage(canvas, 0, 0);
+
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
+        }
+
+        function simulateScore(N, p, type = "original") {
+            let score = 0;
+            const scores = [];
+            for (let i = 0; i < N; i++) {
+                const probability = Math.random();
+                switch (type) {
+                    case "original":
+                        score += (probability < p) ? -1 : 1;
+                        break;
+                    case "1b":
+                        score += (probability < p) ? 0 : 1;
+                        break;
+                    case "1c":
+                        score += (probability < p) ? 0 : 1;
+                        score /= (i + 1);
+                        break;
+                    case "1d":
+                        score += (probability < p) ? 0 : 1;
+                        score /= Math.sqrt(i + 1);
+                        break;
+                }
+                scores.push(score);
+            }
+            return scores;
+        }
+
+        function countScoreIntervals(scores) {
+            const intervals = {};
+            let intervalBase;
+            for (let score of scores) {
+                intervalBase = Math.floor(score / 2) * 2;
+                const intervalKey = `${intervalBase},${intervalBase + 2}`;
+                intervals[intervalKey] = (intervals[intervalKey] || 0) + 1;
+            }
+            return intervals;
+        }
+
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(`hsl(${(i * 360) / count}, 100%, 50%)`);
+            }
+            return colors;
+        }
+
+        function drawChart(M, N, p, type, ctx, canvas) {
+            const attackNumber = parseInt(document.getElementById('attackNumber').value);
+
+            // Introduce scaling factor
+            const chartWidth = canvas.width * scaleFactor ;  
+            const chartHeight = canvas.height * scaleFactor;
+
+            // Adjust for scaling factor
+            const xOffset = 50;
+            const yOffset = chartHeight / 2;
+            const xScale = (chartWidth - xOffset) / N;
+            const yScale = yOffset / N;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const allScores = [];
+
+            const colors = generateColors(M);
+
+            // Axis and labels
+            ctx.strokeStyle = 'black';
+            ctx.beginPath();
+            ctx.moveTo(xOffset, 0);
+            ctx.lineTo(xOffset, canvas.height);
+            ctx.moveTo(xOffset, yOffset);
+            ctx.lineTo(xOffset + chartWidth, yOffset);
+            ctx.stroke();
+
+            // Drawing horizontal lines for every y-value
+            for (let i = -N; i <= N; i += 2) {
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';  // Light gray color for lines
+                ctx.beginPath();
+                ctx.moveTo(xOffset, yOffset - i * yScale);
+                ctx.lineTo(xOffset + chartWidth, yOffset - i * yScale);
+                ctx.stroke();
+            }
+
+            // Label the Y axis
+            ctx.textAlign = "right";
+            for (let i = -N; i <= N; i += 2) {
+                if (i === N) {
+                    ctx.textBaseline = "top";  // Adjust for max value
+                } else if (i === -N) {
+                    ctx.textBaseline = "bottom";   // Adjust for min value
+                } else {
+                    ctx.textBaseline = "middle";
+                }
+                ctx.fillText(i, xOffset - 10, yOffset - i * yScale);
+            }
+
+            // Label the X axis
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            for (let i = 1; i <= N; i++) {
+                let horizontalAdjustment = 0;
+                if (i === N) {
+                    horizontalAdjustment = -15; // Adjust left for max value; change the value as needed
+                }
+                ctx.fillText(i, xOffset + i * xScale + horizontalAdjustment, yOffset + 10);
+            }
+
+            // Simulate scores for all M systems and plot them
+            for (let system = 0; system < M; system++) {
+                const scores = simulateScore(N, p, type);
+                allScores.push(scores);
+                ctx.strokeStyle = colors[system];
+                ctx.beginPath();
+                ctx.moveTo(xOffset, yOffset);
+
+                for (let attack = 0; attack < N; attack++) {
+                    ctx.lineTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+
+                    // Save the current context state
+                    ctx.save();
+                    // Drawing a circle for each point
+                    ctx.arc(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale, 1, 0, 2 * Math.PI);
+                    ctx.fillStyle = colors[system];
+                    ctx.fill();
+                    // Restore the context state to continue the line
+                    ctx.restore();
+
+                    // Move to the next point for line continuation
+                    ctx.moveTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+                }
+
+                ctx.stroke();
+            }
+
+            // Count the final scores for the histogram
+            const endScores = allScores.map(scores => scores[N-1]);
+            const intervals = countScoreIntervals(endScores);
+
+            // Draw the histogram bars for each interval for the final scores
+            const maxBarWidth = canvas.width - (xOffset + N * xScale);
+            for (let intervalKey in intervals) {
+                const [start, end] = intervalKey.split(',').map(Number);
+                const midpoint = (start + end) / 2;
+                const count = intervals[intervalKey];
+
+                const barLength = (count / M) * maxBarWidth; 
+                const barStartY = yOffset - midpoint * yScale;
+                const barStartX = xOffset + N * xScale;  // Start at the last abscissa
+
+                ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                ctx.fillRect(barStartX, barStartY, barLength, yScale);
+            }
+
+            // Draw the histogram bars for the specific attack number
+            const attackScores = allScores.map(scores => scores[attackNumber - 1]);
+            const attackIntervals = countScoreIntervals(attackScores);
+
+            for (let intervalKey in attackIntervals) {
+                const [start, end] = intervalKey.split(',').map(Number);
+                const midpoint = (start + end) / 2;
+                const count = attackIntervals[intervalKey];
+
+                const barLength = ((count / M) * maxBarWidth);
+                const barStartY = yOffset - midpoint * yScale;
+                const barStartX = xOffset + attackNumber * xScale ;
+
+                ctx.fillStyle = 'rgba(100, 150, 255, 0.5)';
+                ctx.fillRect(barStartX, barStartY, barLength, yScale);
+            }
+        }
+
+        function updateChart() {
+            const M = parseInt(document.getElementById('M').value);
+            const N = parseInt(document.getElementById('N').value);
+            const p = parseFloat(document.getElementById('p').value);
+            drawChart(M, N, p);
+        }
+
+        function updateAllCharts() {
+            const M = parseInt(document.getElementById('M').value);
+            const N = parseInt(document.getElementById('N').value);
+            const p = parseFloat(document.getElementById('p').value);
+
+            drawChart(M, N, p, "original", ctxOriginal, canvasOriginal);
+            drawChart(M, N, p, "1b", ctx1b, canvas1b);
+            drawChart(M, N, p, "1c", ctx1c, canvas1c);
+            drawChart(M, N, p, "1d", ctx1d, canvas1d);
+        }
+
+        window.onload = function() {
+            updateAllCharts();
+        };
+    </script>
+
+    <hr>
+    <p>I proceed with showing how the same application can be implemented using C#. Creating a Windows executable.</p><br>
+
+    
+</body>
 </html>
