@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Homework 4</title>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+    <h1>Homework 4</h1>
+    <h2>Author: Pietro Colaguori</h2>
+    <a href="../index.html">Home</a>
+    <hr>
+
+    <p class="question">
+        Since most of the programs you created about the distributions were wrong, we will do a "revision", due to the importance of the distribution concept.<br>
+        Revise and optimize you previous programs to compute the joint distribution of any number of 2,3, ...k, continuous quantitative variables<br>
+        where, for each variable, the user can specify the number of subdivisions ("class intervals") of a range containing the observed values.<br>
+
+        Revise also your previous homework taking into account that qualitative variables can be ordered and therefore the order needs to be preserved.<br>
+
+        For quantitative variables, include the possibility to specify class intervals too.<br>
+    </p>
+    <hr>
+    <p>Since what is asked is a revision of the second homework, instead of copying, pasting and making changes I directly made changes
+        inside the page of the second homework. <br><strong>The page can be accessed from <a href="./hw2.html">here</a></strong>.
+    </p>
+    <hr>
+    <h3>Research</h3>
+    <p class="question">
+        Search on the web about the Law of large numbers LLN and compare it with Part b of your homework 3 and express in your own words whether your simulation is somehow related with this theorem, and why.<br>
+Search on the web about the Central Limit Theorem CLT and compare it with Part a of your homework 3 and say in your own words whether your simulation is somehow related with this theorem, and why.<br>
+Based on the CLT, how could you modify ("normalize") the "security score" to obtain an asymptotic convergence to a proper distribution?
+    </p>
+    <hr>
+    <p style="text-align: left;">
+        The LLN is a fundamental concept in probability and statistics. It states that as a sample size grows, its mean gets closer to the average of the whole population. This is due to the sample being more representative of the population as the sample becomes larger[1].<br>
+
+Here's a simple example: consider flipping a coin. Each time we flip a coin, the probability that it lands on heads is 1/2. Thus, the expected proportion of heads that will appear over an infinite number of flips is 1/2 or 0.52. However, if we flip a coin 10 times we might find that it only lands on heads 3 times. Since 10 flips is a small sample size, there's no guarantee that the proportion of heads will be close to 0.52. But if we continue flipping the coin more and more, the proportion of times that it lands on heads will converge to the expected proportion of 0.52.<br>
+
+The LLN has significant applications in real-world scenarios. For instance, casinos rely on the LLN to reliably produce profits. For most games, the casino wins about 51-55% of the time[2]. This means that individuals can get lucky and win a decent amount from time to time, but over the course of tens of thousands of individual players, the casino will win the expected 51-55% of the time.<br>
+
+Similarly, insurance companies also rely on the LLN to remain profitable. They provide insurance to thousands of individuals who pay a certain premium each month and only a small percentage of these individuals will actually need to use the insurance to pay for large unexpected expenses.<br>
+
+It's important to note that this law applies only when a large number of observations are considered. There is no principle that a small number of observations will coincide with the expected value or that a streak of one value will immediately be “balanced” by others.    
+</p>
+<a href="https://www.statology.org/law-of-large-numbers/">Statology (1)</a><br>
+<a href="https://www.investopedia.com/terms/l/lawoflargenumbers.asp">Investopedia (2)</a>
+<br><br>
+The project I made for Homework 3 is related to the LLN because we can see that as the number of attacks increases the probability of a certain attack to happen converges to the expected probability.<br>
+This is particularly clear by looking at the histograms of the attacks, where the more attacks we have the more the histogram resembles the expected distribution.<br>
+<br><br>
+<p style="text-align: left;">
+Central Limit Theorem (CLT) is a fundamental concept in probability and statistics. It states that as the sample size increases, the distribution of the sample means approaches a normal distribution, regardless of the shape of the original population distribution [1]. This theorem is important because it allows us to make inferences about the population mean based on a sample mean, even if the population distribution is unknown or non-normal. [1]<br>
+
+In the Homework 3 project, we simulated a series of cyber attacks and calculated the security score of a system based on the number of successful attacks. The CLT is related to this project because as the number of attacks increases, the distribution of the security score approaches a normal distribution. This is because the security score is calculated as the sum of a large number of independent and identically distributed random variables (i.e., the number of successful attacks). By the CLT, the distribution of the security score will approach a normal distribution as the number of attacks increases. This allows us to make inferences about the security of the system based on the distribution of the security score.<br>
+</p>
+<a href="https://www.investopedia.com/terms/c/central_limit_theorem.asp">Investopedia (1)</a>
+<br><br>
+<p style="text-align: left;">
+    Based on the Central Limit Theorem (CLT), we can modify the "security score" to obtain an asymptotic convergence to a proper distribution by normalizing it. <br>
+
+    To normalize the "security score", we can subtract the mean of the distribution from each observation and then divide by the standard deviation of the distribution. This will transform the distribution into a standard normal distribution with a mean of 0 and a standard deviation of 1. <br>
+    
+    Once the distribution is normalized, we can use the properties of the standard normal distribution to make inferences about the population mean and standard deviation. This allows us to make more accurate predictions about the security of the system based on the distribution of the security score.<br>
+<hr>
+</body>
+</html>

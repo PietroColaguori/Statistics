@@ -822,9 +822,9 @@ If you wanted to model probabilistically the homework Exercise 1, explain what a
         - The event space <i>F</i> could include events such as {HH} (both tosses are heads), {HT, TH} (one head and one tail in any order), and so on⁶.
         - The probability function <i>P</i> would assign each event in <i>F</i> a probability. For example, <i>P = 1/4</i>, assuming that the coin is fair³.
 
-        <a href="https://en.wikipedia.org/wiki/Probability_space">(1) Probability space - Wikipedia.</a>"
+        <a href="https://en.wikipedia.org/wiki/Probability_space">(1) Probability space - Wikipedia.</a>
         <a href="https://www.statlect.com/glossary/probability-space">(2) Probability space | Definition, axioms, explanation - Statlect.</a>
-        <a href="https://www.statisticshowto.com/probability-space/">(3) Probability Space: Simple Definition, Examples - Statistics How To.</a>"
+        <a href="https://www.statisticshowto.com/probability-space/">(3) Probability Space: Simple Definition, Examples - Statistics How To.</a>
         <a href="https://www.statisticshowto.com/event-space-probability/">(4) Event Space (Probability): Simple Definition & Examples.</a>
         <a href="//www.definitions.net/definition/probability%20space">(5) What does probability space mean? - Definitions.net. </a>
         <a href="https://proofwiki.org/wiki/Definition:Probability_Space">(6) Definition:Probability Space - ProofWiki. </a>
@@ -835,6 +835,87 @@ If you wanted to model probabilistically the homework Exercise 1, explain what a
         Probability Measure (P): The probability measure assigns probabilities to the events in the sigma algebra. It provides a measure of the likelihood of different events occurring in the context of the problem. For example, P("all systems were penetrated") might represent the likelihood of all systems being successfully attacked.
     </pre><hr>
 
+    <h2>Optional Part C</h2>
+<!-- FILEPATH: /C:/Users/pietr/OneDrive/Documenti/GitHub/Statistics/pages/hw3.html -->
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Create a canvas element to hold the chart -->
+<canvas id="myChart"></canvas>
+
+<script>
+    // Define the number of systems and days
+    const M = 3;
+    const N = 10;
+
+    // Define the attack probability for each system and day
+    const p = [
+        [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 0.9],
+        [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 0.9, 0.8],
+    ];
+
+    // Calculate the cumulative number of attacks for each system and day
+    const cumulativeAttacks = [];
+    for (let i = 0; i < M; i++) {
+        cumulativeAttacks[i] = [];
+        let sum = 0;
+        for (let j = 0; j < N; j++) {
+            sum += Math.random() < p[i][j] ? 1 : 0;
+            cumulativeAttacks[i][j] = sum;
+        }
+    }
+
+    // Create the chart
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: N }, (_, i) => `Day ${i + 1}`),
+            datasets: Array.from({ length: M }, (_, i) => ({
+                label: `System ${i + 1}`,
+                data: cumulativeAttacks[i],
+                borderColor: `hsl(${(i * 360) / M}, 100%, 50%)`,
+                fill: false,
+            })),
+        },
+        options: {
+            animation: {
+                duration: 1000,
+                easing: 'linear',
+                loop: true,
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Cumulative Number of Attacks',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Day',
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Cumulative Number of Attacks',
+                    },
+                },
+            },
+        },
+    });
+</script>
+    <hr>
+    <h2>Optional Part D</h2>
+    
     <script src="../prism.js"></script>
 </body>
 </html>
