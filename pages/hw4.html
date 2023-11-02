@@ -10,11 +10,18 @@
 <body>
     <h1>Homework 4</h1>
     <hr>
+    <h3 class="red">Exercise</h3>
+    <p class="question">
+        Since most of the programs you created about the distributions were wrong, we will do a "revision", due to the importance of the distribution concept.<br>
+Revise and optimize you previous programs to compute the joint distribution of any number of 2,3, ...k, continuous quantitative variables.<br>
+where, for each variable, the user can specify the number of subdivisions ("class intervals") of a range containing the observed values.
+    </p>
+    <hr>
     <form action="#" method="post" enctype="multipart/form-data">
         <label for="xlsxFile">Upload XLSX file:</label>
         <input type="file" id="xlsxFile" name="xlsxFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><br><br>
         <input type="submit" value="Submit" id="submitButton" onclick="handleSubmit(event)">
-    </form>
+    </form><br><br>
     
     <div id="buttons"></div>
     <div id="output">
@@ -111,7 +118,7 @@
     
     <hr>
 
-    <h3>Research</h3>
+    <h3 class="red">Research</h3>
     <p class="question">
         Search on the web about the Law of large numbers LLN and compare it with Part b of your homework 3 and express in your own words whether your simulation is somehow related with this theorem, and why.<br>
 Search on the web about the Central Limit Theorem CLT and compare it with Part a of your homework 3 and say in your own words whether your simulation is somehow related with this theorem, and why.<br>
