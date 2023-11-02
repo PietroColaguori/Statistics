@@ -9,24 +9,108 @@
 </head>
 <body>
     <h1>Homework 4</h1>
-    <h2>Author: Pietro Colaguori</h2>
-    <a href="../index.html">Home</a>
+    <hr>
+    <form action="#" method="post" enctype="multipart/form-data">
+        <label for="xlsxFile">Upload XLSX file:</label>
+        <input type="file" id="xlsxFile" name="xlsxFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><br><br>
+        <input type="submit" value="Submit" id="submitButton" onclick="handleSubmit(event)">
+    </form>
+    
+    <div id="buttons"></div>
+    <div id="output">
+        <p>The possibile variables will appear here.</p>
+    </div><br><br>
+    <div id="frequencyTable">
+        <p>The frequency table will appear here.</p>
+    </div><br><br>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script>
+    <script>
+        const selectedNames = new Set();
+        let data = [];
+    
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                data = [];
+    
+                const dataFromXLSX = XLSX.read(event.target.result, { type: 'binary' });
+                const sheetName = dataFromXLSX.SheetNames[0];
+                const worksheet = dataFromXLSX.Sheets[sheetName];
+                data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                createButtons();
+            };
+            reader.readAsBinaryString(file);
+        }
+    
+        function createButtons() {
+            const header = data[0];
+    
+            const buttons = header.map(cell => {
+                const button = document.createElement('button');
+                button.textContent = cell;
+                button.addEventListener('click', () => toggleText(cell));
+                return button;
+            });
+    
+            const buttonsContainer = document.getElementById('buttons');
+            buttons.forEach(button => buttonsContainer.appendChild(button));
+        }
+    
+        function toggleText(text) {
+            const outputElement = document.getElementById('output');
+            if (selectedNames.has(text)) {
+                selectedNames.delete(text);
+            } else {
+                selectedNames.add(text);
+            }
+    
+            const selectedNamesArray = Array.from(selectedNames);
+            outputElement.textContent = selectedNamesArray.join(', ');
+        }
+    
+        function handleSubmit(event) {
+            event.preventDefault(); // Prevent form submission
+            computeFrequencyDistribution();
+        }
+    
+        document.getElementById('xlsxFile').addEventListener('change', handleFileSelect, false);
+    
+        function computeFrequencyDistribution() {
+            const frequencyTable = document.getElementById('frequencyTable');
+            frequencyTable.innerHTML = ''; // Clear the previous table
+    
+            if (selectedNames.size > 0) {
+                const header = data[0];
+                const selectedColumnIndices = header
+                    .map((columnName, index) => selectedNames.has(columnName) ? index : -1)
+                    .filter(index => index !== -1);
+    
+                const jointFrequency = new Map();
+    
+                for (const row of data.slice(1)) {
+                    const selectedRowValues = selectedColumnIndices.map(index => row[index]);
+                    const key = selectedRowValues.join('|');
+                    jointFrequency.set(key, (jointFrequency.get(key) || 0) + 1);
+                }
+    
+                const table = document.createElement('table');
+                table.innerHTML = `<tr><th>Variables</th><th>Absolute Frequency</th><th>Relative Frequency</th><th>Percentage Frequency</th></tr>`;
+    
+                for (const [key, count] of jointFrequency) {
+                    const relative = count / (data.length - 1);
+                    const percentage = (relative * 100).toFixed(2);
+                    table.innerHTML += `<tr><td>${key}</td><td>${count}</td><td>${relative.toFixed(2)}</td><td>${percentage}%</td></tr>`;
+                }
+    
+                frequencyTable.appendChild(table);
+            }
+        }
+    </script>    
+    
     <hr>
 
-    <p class="question">
-        Since most of the programs you created about the distributions were wrong, we will do a "revision", due to the importance of the distribution concept.<br>
-        Revise and optimize you previous programs to compute the joint distribution of any number of 2,3, ...k, continuous quantitative variables<br>
-        where, for each variable, the user can specify the number of subdivisions ("class intervals") of a range containing the observed values.<br>
-
-        Revise also your previous homework taking into account that qualitative variables can be ordered and therefore the order needs to be preserved.<br>
-
-        For quantitative variables, include the possibility to specify class intervals too.<br>
-    </p>
-    <hr>
-    <p>Since what is asked is a revision of the second homework, instead of copying, pasting and making changes I directly made changes
-        inside the page of the second homework. <br><strong>The page can be accessed from <a href="./hw2.html">here</a></strong>.
-    </p>
-    <hr>
     <h3>Research</h3>
     <p class="question">
         Search on the web about the Law of large numbers LLN and compare it with Part b of your homework 3 and express in your own words whether your simulation is somehow related with this theorem, and why.<br>
@@ -67,3 +151,5 @@ In the Homework 3 project, we simulated a series of cyber attacks and calculated
 <hr>
 </body>
 </html>
+
+
