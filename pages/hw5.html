@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Homework 3</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 1px solid #000;
+            flex-grow: 1;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background-color: #800995;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #5e0a6d;
+        }
+        input {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        #simulationControls {
+            border: 1px solid black;
+            padding: 10px;
+            border-radius: 10px;
+            background-color:mediumslateblue;
+            color:whitesmoke;
+        }
+        #description {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .canvas-container {
+            display: inline-block;
+            resize: both;
+            overflow: auto;
+            border: 1px solid #ccc;
+            margin: 10px;
+            position: relative;
+            background-color: whitesmoke;
+            width: 60%;
+            height: 60%;
+            display: block;
+        }
+
+        .canvas-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .canvas-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .canvas-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../prism.css"> 
+</head>
+<body>
+    <h1>Homework 3</h1>
+    <h2>Author: Pietro Colaguori</h2>
+    <hr>
+
+    <h3 class="red">Exercise</h3>
+    <p class="question">
+        M servers are subject to attacks during a period of time T (for instance 1 year).<br>
+        Subdivide the interval T in N subinterval of size T/N and in each of this suppose that
+        an attack can occur with probability λ T/N.<br>
+        Simulate the attacks to the M servers and represent each of them with a line which
+        makes jumps of 1 at each attack event.<br>
+        
+        Using the same objects ("movable/resizable rectangle", histogram, etc.) of the previous homework 3
+        draw vertically on the line chart the 2 histograms representing the distribution of the number
+        of attacks at the end of the period and one internal istant for comparison.
+    </p>
+    <hr>
+
+    <div id="simulationControls">
+        <p>Insert the number of servers (M): </p>
+        <input type="number" id="M" placeholder="M" value="5">
+        <p>Insert the total time interval in months (N): </p>
+        <input type="number" id="N" placeholder="N" value="10">
+        <p>Insert the total time interval (T):</p>
+        <input type="number" id="T" placeholder="T" value="10">
+        <p>Insert the value of λ ∈ [0, 1]:</p>
+        <input type="number" id="p" placeholder="p" value="0.3" max="1" min="0">
+        <p>Insert the attack number for the histogram:</p>
+        <input type="number" id="attackNumber" placeholder="Attack Number" value="1">
+        <br><br>
+        <button onclick="updateAllCharts()">Update Charts</button>
+    </div>
+    <br><br>
+
+    <div class="centered">
+
+        <h3 id="description">Plot of the Attacks</h3>
+    </div>
+
+    <div class="canvas-center">
+        <div class="canvas-container">
+            <div class="canvas-row">
+                    <canvas id="securityChartOriginal" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+            <div class="centered" style="display: none;">
+
+                <h3 id="description">Cumulative Frequency</h3>
+            </div>
+        <div class="canvas-center" style="display: none;">
+            <div class="canvas-container">
+                <div class="canvas-row">
+                        <canvas id="securityChart1b" width="800" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="centered" style="display: none;">
+
+                <h3 id="description">Relative Frequency</h3>
+            </div>
+        <div class="canvas-center" style="display: none;">
+            <div class="canvas-container">
+                <div class="canvas-row">
+                        <canvas id="securityChart1c" width="800" height="400" ></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="centered" style="display: none;">
+
+                <h3 id="description">Normalized Frequency</h3>
+            </div>
+        <div class="canvas-center" style="display: none;">
+            <div class="canvas-container canvas">
+                <div class="canvas-row">
+                    <canvas id="securityChart1d" width="800" height="400" ></canvas>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        const canvasOriginal = document.getElementById('securityChartOriginal');
+        const canvas1b = document.getElementById('securityChart1b');
+        const canvas1c = document.getElementById('securityChart1c');
+        const canvas1d = document.getElementById('securityChart1d');
+
+        const ctxOriginal = canvasOriginal.getContext('2d');
+        const ctx1b = canvas1b.getContext('2d');
+        const ctx1c = canvas1c.getContext('2d');
+        const ctx1d = canvas1d.getContext('2d');
+
+        const scaleFactor = 0.9; // Adjust this value as needed, where 1 is full size and 0.5 is half size, etc.
+
+        let isDragging = false;
+        let startX, startY;
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            const style = e.target.parentElement.style;
+            style.left = (parseInt(style.left) + dx) + 'px';
+            style.top = (parseInt(style.top) + dy) + 'px';
+
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        const canvasContainers = document.querySelectorAll('.canvas-container');
+        canvasContainers.forEach(container => {
+            container.addEventListener('resize', function() {
+                scaleCanvasContent(container.querySelector('canvas'));
+            });
+            container.addEventListener('mousedown', startDrag);
+            container.addEventListener('mousemove', drag);
+            container.addEventListener('mouseup', stopDrag);
+            container.addEventListener('mouseleave', stopDrag); // Stops dragging if the mouse leaves the canvas
+        });
+
+        function scaleCanvasContent(canvas) {
+            const ctx = canvas.getContext('2d');
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempCtx.drawImage(canvas, 0, 0);
+
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
+        }
+
+        function simulateScore(N, p, type = "original") {
+            let score = 0;
+            const scores = [];
+            for (let i = 0; i < N; i++) {
+                // Probability of server being able to defend itself
+                const probability = Math.random();
+                switch (type) {
+                    case "original":
+                        score += (probability < p) ? 0 : 1;
+                        break;
+                    case "1b":
+                        score += (probability < p) ? 0 : 1;
+                        break;
+                    case "1c":
+                        score += (probability < p) ? 0 : 1;
+                        score /= (i + 1);
+                        break;
+                    case "1d":
+                        score += (probability < p) ? 0 : 1;
+                        score /= Math.sqrt(i + 1);
+                        break;
+                }
+                scores.push(score);
+            }
+            return scores;
+        }
+
+        function countScoreIntervals(scores) {
+            const intervals = {};
+            let intervalBase;
+            for (let score of scores) {
+                intervalBase = Math.floor(score / 2) * 2;
+                const intervalKey = `${intervalBase},${intervalBase + 2}`;
+                intervals[intervalKey] = (intervals[intervalKey] || 0) + 1;
+            }
+            return intervals;
+        }
+
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(`hsl(${(i * 360) / count}, 100%, 50%)`);
+            }
+            return colors;
+        }
+
+        function drawChart(M, N, p, type, ctx, canvas) {
+            const attackNumber = parseInt(document.getElementById('attackNumber').value);
+
+            // Introduce scaling factor
+            const chartWidth = canvas.width * scaleFactor ;  
+            const chartHeight = canvas.height * scaleFactor;
+
+            // Adjust for scaling factor
+            const xOffset = 50;
+            const yOffset = chartHeight / 2;
+            const xScale = (chartWidth - xOffset) / N;
+            const yScale = yOffset / N;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const allScores = [];
+
+            const colors = generateColors(M);
+
+            // Axis and labels
+            ctx.strokeStyle = 'black';
+            ctx.beginPath();
+            ctx.moveTo(xOffset, 0);
+            ctx.lineTo(xOffset, canvas.height);
+            ctx.moveTo(xOffset, yOffset);
+            ctx.lineTo(xOffset + chartWidth, yOffset);
+            ctx.stroke();
+
+            // Drawing horizontal lines for every y-value
+            for (let i = -N; i <= N; i += 2) {
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';  // Light gray color for lines
+                ctx.beginPath();
+                ctx.moveTo(xOffset, yOffset - i * yScale);
+                ctx.lineTo(xOffset + chartWidth, yOffset - i * yScale);
+                ctx.stroke();
+            }
+
+            // Label the Y axis
+            ctx.textAlign = "right";
+            for (let i = -N; i <= N; i += 2) {
+                if (i === N) {
+                    ctx.textBaseline = "top";  // Adjust for max value
+                } else if (i === -N) {
+                    ctx.textBaseline = "bottom";   // Adjust for min value
+                } else {
+                    ctx.textBaseline = "middle";
+                }
+                ctx.fillText(i, xOffset - 10, yOffset - i * yScale);
+            }
+
+            // Label the X axis
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            for (let i = 1; i <= N; i++) {
+                let horizontalAdjustment = 0;
+                if (i === N) {
+                    horizontalAdjustment = -15; // Adjust left for max value; change the value as needed
+                }
+                ctx.fillText(i, xOffset + i * xScale + horizontalAdjustment, yOffset + 10);
+            }
+
+            // Simulate scores for all M systems and plot them
+            for (let system = 0; system < M; system++) {
+                const scores = simulateScore(N, p, type);
+                allScores.push(scores);
+                ctx.strokeStyle = colors[system];
+                ctx.beginPath();
+                ctx.moveTo(xOffset, yOffset);
+
+                for (let attack = 0; attack < N; attack++) {
+                    ctx.lineTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+
+                    // Save the current context state
+                    ctx.save();
+                    // Drawing a circle for each point
+                    ctx.arc(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale, 1, 0, 2 * Math.PI);
+                    ctx.fillStyle = colors[system];
+                    ctx.fill();
+                    // Restore the context state to continue the line
+                    ctx.restore();
+
+                    // Move to the next point for line continuation
+                    ctx.moveTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+                }
+
+                ctx.stroke();
+            }
+
+            // Count the final scores for the histogram
+            const endScores = allScores.map(scores => scores[N-1]);
+            const intervals = countScoreIntervals(endScores);
+
+            // Draw the histogram bars for each interval for the final scores
+            const maxBarWidth = canvas.width - (xOffset + N * xScale);
+            for (let intervalKey in intervals) {
+                const [start, end] = intervalKey.split(',').map(Number);
+                const midpoint = (start + end) / 2;
+                const count = intervals[intervalKey];
+
+                const barLength = (count / M) * maxBarWidth; 
+                const barStartY = yOffset - midpoint * yScale;
+                const barStartX = xOffset + N * xScale;  // Start at the last abscissa
+
+                ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                ctx.fillRect(barStartX, barStartY, barLength, yScale);
+            }
+
+            // Draw the histogram bars for the specific attack number
+            const attackScores = allScores.map(scores => scores[attackNumber - 1]);
+            const attackIntervals = countScoreIntervals(attackScores);
+
+            for (let intervalKey in attackIntervals) {
+                const [start, end] = intervalKey.split(',').map(Number);
+                const midpoint = (start + end) / 2;
+                const count = attackIntervals[intervalKey];
+
+                const barLength = ((count / M) * maxBarWidth);
+                const barStartY = yOffset - midpoint * yScale;
+                const barStartX = xOffset + attackNumber * xScale ;
+
+                ctx.fillStyle = 'rgba(100, 150, 255, 0.5)';
+                ctx.fillRect(barStartX, barStartY, barLength, yScale);
+            }
+        }
+
+        function updateChart() {
+            const M = parseInt(document.getElementById('M').value);
+            const N = parseInt(document.getElementById('N').value);
+            const p = parseFloat(document.getElementById('p').value);
+            drawChart(M, N, p);
+        }
+
+        function updateAllCharts() {
+            const M = parseInt(document.getElementById('M').value);
+            const N = parseInt(document.getElementById('N').value);
+            const T = parseInt(document.getElementById('T').value);
+            const p = parseFloat(document.getElementById('p').value);
+
+            drawChart(M, N, p * T/N, "original", ctxOriginal, canvasOriginal);
+            drawChart(M, N, p, "1b", ctx1b, canvas1b);
+            drawChart(M, N, p, "1c", ctx1c, canvas1c);
+            drawChart(M, N, p, "1d", ctx1d, canvas1d);
+        }
+
+        window.onload = function() {
+            updateAllCharts();
+        };
+    </script>
+
+    <p>By clicking the buttons both the JavaScript code and the C# code can be displayed.</p>
+    <p>Note: since most of the code is the same as the one shown in Homework 3, I report only the changes.</p><br>
+    <hr>
+    <!-- JAVASCRIPT CODE DISPLAY -->
+    <button onclick="displayJS()">Javascript</button>
+
+    <div id="javascript-code" style="display:none;">
+        <pre><code class="language-javascript">
+            // Compute scores based on new criterion
+            function simulateScore(N, p, type = "original") {
+                let score = 0;
+                const scores = [];
+                for (let i = 0; i < N; i++) {
+                    // Probability of server being able to defend itself
+                    const probability = Math.random();
+                    switch (type) {
+                        case "original":
+                            score += (probability < p) ? 0 : 1;
+                            break;
+                    }
+                }
+            }
+
+            // Update the chart
+            function updateAllCharts() {
+                const M = parseInt(document.getElementById('M').value);
+                const N = parseInt(document.getElementById('N').value);
+                const T = parseInt(document.getElementById('T').value);
+                const p = parseFloat(document.getElementById('p').value);
+    
+                drawChart(M, N, p * T/N, "original", ctxOriginal, canvasOriginal);
+            }
+        </code></pre>
+    </div>
+
+    <script>
+    let isDisplayed = false;
+    function displayJS() {
+        var textDiv = document.getElementById("javascript-code");
+        if (isDisplayed) {
+            textDiv.style.display = "none";
+            isDisplayed = false;
+        } else {
+            textDiv.style.display = "block";
+            isDisplayed = true;
+        }
+    }
+    </script>
+    
+    <hr>
+    <button onclick="displayCS()">C#</button>
+    <div id="csharp-code" style="display:none;">
+        <pre><code class="language-csharp">
+public int[] SimulateScore(int N, double p, string type = "original")
+{
+    int score = 0;
+    List<int> scores = new List<int>();
+
+    for (int i = 0; i < N; i++)
+    {
+        // Probability of server being able to defend itself
+        double probability = new Random().NextDouble();
+
+        switch (type)
+        {
+            case "original":
+                score += (probability < p) ? 0 : 1;
+                break;
+        }
+
+        scores.Add(score);
+    }
+
+    return scores.ToArray();
+}
+
+public void UpdateAllCharts()
+{
+    int M = int.Parse(document.getElementById("M").value);
+    int N = int.Parse(document.getElementById("N").value);
+    int T = int.Parse(document.getElementById("T").value);
+    double p = double.Parse(document.getElementById("p").value);
+
+    DrawChart(M, N, p * T / N, "original", ctxOriginal, canvasOriginal);
+}
+
+        </code></pre>
+    </div>
+
+    <script>
+        function displayCS() {
+            var textDiv = document.getElementById("csharp-code");
+            if (textDiv.style.display === "block") {
+                textDiv.style.display = "none";
+            } else {
+                textDiv.style.display = "block";
+            }
+        }
+    </script>
+    <hr>
+
+    <h3 class="red">Research</h3>
+    <p class="question">
+        Find out on the web about a Poisson point process.<br> See if you can see any analogy with this Exercise and verify whether your distributions come close (for N, M sufficiently large) to the theoretical asymptotic distribution.
+    </p><br><hr><br>
+
+    
+
+    
+    <script src="../prism.js"></script>
+</body>
+</html>
