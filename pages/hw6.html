@@ -1,1 +1,481 @@
-WORK IN PROGRESS ...
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Homework 6</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 1px solid #000;
+            flex-grow: 1;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background-color: #800995;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #5e0a6d;
+        }
+        input {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        #simulationControls {
+            border: 1px solid black;
+            padding: 10px;
+            border-radius: 10px;
+            background-color:mediumslateblue;
+            color:whitesmoke;
+        }
+        #description {
+            font-size: 20px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .canvas-container {
+            display: inline-block;
+            resize: both;
+            overflow: auto;
+            border: 1px solid #ccc;
+            margin: 10px;
+            position: relative;
+            background-color: whitesmoke;
+            width: 60%;
+            height: 60%;
+            display: block;
+        }
+
+        .canvas-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .canvas-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .canvas-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../prism.css"> 
+</head>
+<body>
+    <h1>Homework 6</h1>
+    <h2>Author: Pietro Colaguori 1936709</h2>
+    <a href="../index.html">Home</a>
+    <hr>
+
+    <h3 class="red">Exercise</h3>
+    <p class="question">
+            Consider a scheme similar to Homework 3, Part a
+        where M systems are subject to a series of N attacks. <br>A system is discarded as "unsecure" if it reaches a penetration score of P before reaching, instead, a security score of S. Simulate and represent the probabilities of a system being discarded, for various values of P, example: P = k*10 (k=2,...,10), conditional on the 3 cases for S: S = 20, S = 60, S = 100 (or any other value of S of your choice that you find useful to explore (it could be a user parameter).<br>
+    </p>
+    <hr>
+
+    <div id="simulationControls">
+        <p>Insert the number of servers (M): </p>
+        <input type="number" id="M" placeholder="M" value="5">
+        <p>Insert the number of attacks (N): </p>
+        <input type="number" id="N" placeholder="N" value="10">
+        <p>Probability of success (p):</p>
+        <input type="number" id="p" placeholder="p" value="0.3">
+        <p>Penetration Score (P): </p>
+        <input type="number" id="P" placeholder="P" value="10" step="10">
+        <p>Security score (S):</p>
+        <select id="S" style="font-size: 20px; padding: 10px; border-radius: 5px;">
+            <option value="20">20</option>
+            <option value="60" selected>60</option>
+            <option value="100">100</option>
+        </select>
+        <p style="display: none;">Insert the attack number for the histogram:</p>
+        <input style="display: none;" type="number" id="attackNumber" placeholder="Attack Number" value="1">
+        <br><br>
+        <button onclick="updateAllCharts()">Update Chart</button>
+    </div>
+    <br><br>
+
+    <div class="centered">
+
+        <h3 id="description"></h3>
+    </div>
+
+    <div class="canvas-center">
+        <div class="canvas-container">
+            <div class="canvas-row">
+                    <canvas id="securityChartOriginal" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+            <div class="centered" style="display: none;">
+
+                <h3 id="description">Cumulative Frequency</h3>
+            </div>
+        <div class="canvas-center" style="display: none;">
+            <div class="canvas-container">
+                <div class="canvas-row">
+                        <canvas id="securityChart1b" width="800" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="centered" style="display: none;">
+
+                <h3 id="description">Relative Frequency</h3>
+            </div>
+        <div class="canvas-center" style="display: none;">
+            <div class="canvas-container">
+                <div class="canvas-row">
+                        <canvas id="securityChart1c" width="800" height="400" ></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="centered" style="display: none;">
+
+                <h3 id="description">Normalized Frequency</h3>
+            </div>
+        <div class="canvas-center" style="display: none;">
+            <div class="canvas-container canvas">
+                <div class="canvas-row">
+                    <canvas id="securityChart1d" width="800" height="400" ></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="unsecure_tracker">
+            <h4> List of Unsecure Systems</h4><br>
+        </div>
+
+        <div id="unsecure_probability">
+            <h4> Probability of a system being unsecure</h4><br>
+        </div>
+
+        <script>
+            const canvasOriginal = document.getElementById('securityChartOriginal');
+            const canvas1b = document.getElementById('securityChart1b');
+            const canvas1c = document.getElementById('securityChart1c');
+            const canvas1d = document.getElementById('securityChart1d');
+    
+            const ctxOriginal = canvasOriginal.getContext('2d');
+            const ctx1b = canvas1b.getContext('2d');
+            const ctx1c = canvas1c.getContext('2d');
+            const ctx1d = canvas1d.getContext('2d');
+    
+            const scaleFactor = 0.9; // Adjust this value as needed, where 1 is full size and 0.5 is half size, etc.
+    
+            let isDragging = false;
+            let startX, startY;
+    
+            function startDrag(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+    
+            function drag(e) {
+                if (!isDragging) return;
+    
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+    
+                const style = e.target.parentElement.style;
+                style.left = (parseInt(style.left) + dx) + 'px';
+                style.top = (parseInt(style.top) + dy) + 'px';
+    
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+    
+            function stopDrag() {
+                isDragging = false;
+            }
+    
+            const canvasContainers = document.querySelectorAll('.canvas-container');
+            canvasContainers.forEach(container => {
+                container.addEventListener('resize', function() {
+                    scaleCanvasContent(container.querySelector('canvas'));
+                });
+                container.addEventListener('mousedown', startDrag);
+                container.addEventListener('mousemove', drag);
+                container.addEventListener('mouseup', stopDrag);
+                container.addEventListener('mouseleave', stopDrag); // Stops dragging if the mouse leaves the canvas
+            });
+    
+            function scaleCanvasContent(canvas) {
+                const ctx = canvas.getContext('2d');
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                tempCtx.drawImage(canvas, 0, 0);
+    
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+    
+                ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
+            }
+    
+            function simulateScore(N, p, type = "original") {
+                let score = 0;
+                let pen_score = 0;
+                const scores = [];
+                const pen_scores = [];
+                for (let i = 0; i < N; i++) {
+                    // Probability of server being able to defend itself
+                    const probability = Math.random();
+                    switch (type) {
+                        case "original":
+                            score += (probability < p) ? -1 : 1;
+                            pen_score += (probability < p) ? 1 : -1;
+                            break;
+                        case "1b":
+                            score += (probability < p) ? 0 : 1;
+                            break;
+                        case "1c":
+                            score += (probability < p) ? 0 : 1;
+                            score /= (i + 1);
+                            break;
+                        case "1d":
+                            score += (probability < p) ? 0 : 1;
+                            score /= Math.sqrt(i + 1);
+                            break;
+                    }
+                    scores.push(score);
+                    pen_scores.push(pen_score);
+                }
+                return (scores, pen_scores);
+            }
+    
+            function countScoreIntervals(scores) {
+                const intervals = {};
+                let intervalBase;
+                for (let score of scores) {
+                    intervalBase = Math.floor(score / 2) * 2;
+                    const intervalKey = `${intervalBase},${intervalBase + 2}`;
+                    intervals[intervalKey] = (intervals[intervalKey] || 0) + 1;
+                }
+                return intervals;
+            }
+    
+            function generateColors(count) {
+                const colors = [];
+                for (let i = 0; i < count; i++) {
+                    colors.push(`hsl(${(i * 360) / count}, 100%, 50%)`);
+                }
+                return colors;
+            }
+    
+            function drawChart(M, N, p, P, S, type, ctx, canvas) {
+                const attackNumber = parseInt(document.getElementById('attackNumber').value);
+    
+                // Introduce scaling factor
+                const chartWidth = canvas.width * scaleFactor ;  
+                const chartHeight = canvas.height * scaleFactor;
+    
+                // Adjust for scaling factor
+                const xOffset = 50;
+                const yOffset = chartHeight / 2;
+                const xScale = (chartWidth - xOffset) / N;
+                const yScale = yOffset / N;
+    
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const allScores = [];
+                const PenScores = [];
+                const unsecure = [];
+    
+                const colors = generateColors(M);
+    
+                // Axis and labels
+                ctx.strokeStyle = 'black';
+                ctx.beginPath();
+                ctx.moveTo(xOffset, 0);
+                ctx.lineTo(xOffset, canvas.height);
+                ctx.moveTo(xOffset, yOffset);
+                ctx.lineTo(xOffset + chartWidth, yOffset);
+                ctx.stroke();
+    
+                // Drawing horizontal lines for every y-value
+                for (let i = -N; i <= N; i += 2) {
+                    ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';  // Light gray color for lines
+                    ctx.beginPath();
+                    ctx.moveTo(xOffset, yOffset - i * yScale);
+                    ctx.lineTo(xOffset + chartWidth, yOffset - i * yScale);
+                    ctx.stroke();
+                }
+    
+                // Label the Y axis
+                ctx.textAlign = "right";
+                for (let i = -N; i <= N; i += 2) {
+                    if (i === N) {
+                        ctx.textBaseline = "top";  // Adjust for max value
+                    } else if (i === -N) {
+                        ctx.textBaseline = "bottom";   // Adjust for min value
+                    } else {
+                        ctx.textBaseline = "middle";
+                    }
+                    ctx.fillText(i, xOffset - 10, yOffset - i * yScale);
+                }
+    
+                // Label the X axis
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+                for (let i = 1; i <= N; i++) {
+                    let horizontalAdjustment = 0;
+                    if (i === N) {
+                        horizontalAdjustment = -15; // Adjust left for max value; change the value as needed
+                    }
+                    ctx.fillText(i, xOffset + i * xScale + horizontalAdjustment, yOffset + 10);
+                }
+    
+                // Simulate scores for all M systems and plot them
+                for (let system = 0; system < M; system++) {
+                    const scores = simulateScore(N, p, type);
+                    allScores.push(scores[0]);
+                    PenScores.push(scores[1]);
+                    ctx.strokeStyle = colors[system];
+                    ctx.beginPath();
+                    ctx.moveTo(xOffset, yOffset);
+    
+                    for (let attack = 0; attack < N; attack++) {
+
+                        if (PenScores[attack] >= P && allScores[attack] < S) {
+                            unsecure.push(attack + 1);
+                        }
+
+                        if(PenScores[attack] == -2) {
+                            unsecure.push(attack + 1);
+                        }
+
+                        ctx.lineTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+    
+                        // Save the current context state
+                        ctx.save();
+                        // Drawing a circle for each point
+                        ctx.arc(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale, 1, 0, 2 * Math.PI);
+                        ctx.fillStyle = colors[system];
+                        ctx.fill();
+                        // Restore the context state to continue the line
+                        ctx.restore();
+    
+                        // Move to the next point for line continuation
+                        ctx.moveTo(xOffset + (attack + 1) * xScale, yOffset - scores[attack] * yScale);
+                    }
+    
+                    ctx.stroke();
+                }
+    
+                // Count the final scores for the histogram
+                const endScores = allScores.map(scores => scores[N-1]);
+                const intervals = countScoreIntervals(endScores);
+    
+                // Draw the histogram bars for each interval for the final scores
+                const maxBarWidth = canvas.width - (xOffset + N * xScale);
+                for (let intervalKey in intervals) {
+                    const [start, end] = intervalKey.split(',').map(Number);
+                    const midpoint = (start + end) / 2;
+                    const count = intervals[intervalKey];
+    
+                    const barLength = (count / M) * maxBarWidth; 
+                    const barStartY = yOffset - midpoint * yScale;
+                    const barStartX = xOffset + N * xScale;  // Start at the last abscissa
+    
+                    ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                    ctx.fillRect(barStartX, barStartY, barLength, yScale);
+                }
+    
+                // Draw the histogram bars for the specific attack number
+                const attackScores = allScores.map(scores => scores[attackNumber - 1]);
+                const attackIntervals = countScoreIntervals(attackScores);
+    
+                for (let intervalKey in attackIntervals) {
+                    const [start, end] = intervalKey.split(',').map(Number);
+                    const midpoint = (start + end) / 2;
+                    const count = attackIntervals[intervalKey];
+    
+                    const barLength = ((count / M) * maxBarWidth);
+                    const barStartY = yOffset - midpoint * yScale;
+                    const barStartX = xOffset + attackNumber * xScale ;
+    
+                    ctx.fillStyle = 'rgba(100, 150, 255, 0.5)';
+                    ctx.fillRect(barStartX, barStartY, barLength, yScale);
+                }
+
+                // Update unsecure_tracker with the names of unsecure systems
+                const unsecure_tracker = document.getElementById('unsecure_tracker');
+                unsecure_tracker.innerHTML = "<h4> List of Unsecure Systems</h4>";
+                for (let i = 0; i < unsecure.length; i++) {
+                    unsecure_tracker.innerHTML += "<p>System " + (i + 1) + " is unsecure at attack " + unsecure[i] + "</p>";
+                }
+
+                // Update unsecure_probability with the probability of a system being unsecure
+                const unsecure_probability = document.getElementById('unsecure_probability');
+                unsecure_probability.innerHTML = "<h4> Probability of a system being unsecure</h4>";
+                unsecure_probability.innerHTML += "<p>" + (unsecure.length / M) + "</p>";
+                unsecure_probability.innerHTML += "<p>" + PenScores + "</p>";
+            }
+    
+            function updateChart() {
+                const M = parseInt(document.getElementById('M').value);
+                const N = parseInt(document.getElementById('N').value);
+                const p = parseFloat(document.getElementById('p').value);
+                const P = parseFloat(document.getElementById('P').value);
+                const S = parseFloat(document.getElementById('S').value);
+                drawChart(M, N, p, P, S);
+            }
+    
+            function updateAllCharts() {
+                const M = parseInt(document.getElementById('M').value);
+                const N = parseInt(document.getElementById('N').value);
+                const p = parseFloat(document.getElementById('p').value);
+                const P = parseFloat(document.getElementById('P').value);
+                const S = parseFloat(document.getElementById('S').value);
+    
+                drawChart(M, N, p, P, S, "original", ctxOriginal, canvasOriginal);
+                drawChart(M, N, p, "1b", ctx1b, canvas1b);
+                drawChart(M, N, p, "1c", ctx1c, canvas1c);
+                drawChart(M, N, p, "1d", ctx1d, canvas1d);
+            }
+    
+            window.onload = function() {
+                updateAllCharts();
+            };
+        </script>
+
+    <hr>
+    <h3 class="red">Research</h3>
+    <p class="question">
+        Find out on the web about the "Gambler's Ruin Problem".<br> See if you can see any analogy with this exercise and make your personal consideration about what your simulation is suggesting to you.<br>
+    </p><br><hr><br>
+    
+    <p class="answer" style="text-align: left; padding-left: 20px; background-color: aquamarine;">
+        The Gambler's Ruin Problem is a mathematical problem that models the probability of a gambler losing all of their money before winning a certain amount. In this problem, two players start with a certain amount of money and take turns betting until one player loses all of their money. The problem can be extended to include a player who has an initial advantage, such as a higher probability of winning each bet.<br>
+        <br>
+        There is an analogy between the Gambler's Ruin Problem and the simulation in this exercise. In both cases, there is a probability of losing or winning, and the outcome depends on a series of random events. The simulation in this exercise models the probability of a system being compromised by an attacker, and the Gambler's Ruin Problem models the probability of a gambler losing all of their money.<br>
+        <br>
+        One consideration that the simulation suggests is the importance of having secure systems in place. Just as a gambler can lose all of their money if they do not have a strategy in place, a system can be compromised if it is not secure. The simulation highlights the importance of implementing security measures to protect against attacks.<br>
+    </p>
+    </p><br><hr><br>
+
+</body>
