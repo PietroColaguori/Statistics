@@ -1,14 +1,7 @@
-/* Javascript progressive tutorial by example for students, by Tom Gastaldi, University of Rome "Sapienza",
-tommaso.gastaldi@gmail.com, WhatsApp: 3272347610. Please report corrections, improvements, reference links, etc. */
-
 "use strict";
 
 
-class MyDistributionUtilities {
-
-  static round2digits(myValue) {
-    return Math.round((myValue + Number.EPSILON) * 100) / 100;
-  }
+class forDistribution {
 
 
   static UpdateMeanAndSS(x, i, [mean, ss]) {
@@ -18,16 +11,6 @@ class MyDistributionUtilities {
     return [mean, ss];
   }
 
-
-  static maxCountInIntervals(x_intervals) {
-    let maxCount_x = 0;
-    for (let classInterval of x_intervals) {
-      if (classInterval.count > maxCount_x) {
-        maxCount_x = classInterval.count
-      }
-    }
-    return maxCount_x;
-  }
 
   static creaPrimoIntervallo(x, intervalSize) {
     const lower = Math.floor(x * (1 / intervalSize)) * intervalSize;
@@ -104,7 +87,7 @@ class ClassInterval {
 
   constructor(lower, upper) {
     this.lower = lower;
-    this.upper = upper;       //included
+    this.upper = upper;    
     this.count = 0;
     this.relativeFreq = 0;
   }
