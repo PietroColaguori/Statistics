@@ -82,9 +82,14 @@
             background-color: black;
         }
         .stochastic-processes-container {
-            border: 3px solid black;
-            padding: 10px;
-            border-radius: 10px;
+                border: 3px solid black;
+                padding: 10px;
+                border-radius: 10px;
+                background-color: #f1f1f1;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+                font-family: "Arial", sans-serif;
+                color: #333;
+                padding-left: 10px;
         }
         
     </style>
@@ -93,6 +98,7 @@
     <script src="for2d.js"></script>
     <script src="forChart.js"></script>
     <script src="forDistribution.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Homework 7</h1>
@@ -140,27 +146,18 @@
         <br><br>
 
             <h3 id="description">Choose a stochastic process</h3>
-            
             <div class="stochastic-processes-container">
-                <div class="stochastic-processes">
-                    <input type="radio" id="check_BROWNIAN_MOTION_STANDARD" name="gruppo" checked>
-                    <label for="check_BROWNIAN_MOTION_STANDARD">Standard Brownian Motion [µ=0, σ=1]</label>
-                </div>
+                <input type="radio" id="check_BROWNIAN_MOTION_STANDARD" name="stochastic-process" checked>
+                <label for="check_BROWNIAN_MOTION_STANDARD">Standard Brownian Motion</label>
 
-                <div class="stochastic-processes">
-                    <input type="radio" id="check_BROWNIAN_MOTION_GEN" name="gruppo">
-                    <label for="check_BROWNIAN_MOTION_GEN">Arithmetic Brownian Motion [choose µ, σ]</label>
-                </div>
+                <input type="radio" id="check_BROWNIAN_MOTION_GEN" name="stochastic-process">
+                <label for="check_BROWNIAN_MOTION_GEN">Arithmetic Brownian Motion</label>
 
-                <div class="stochastic-processes">
-                    <input type="radio" id="check_BROWNIAN_MOTION_GEO" name="gruppo">
-                    <label for="check_BROWNIAN_MOTION_GEO">Geometric Brownian Motion [choose µ, σ]</label>
-                </div>
+                <input type="radio" id="check_BROWNIAN_MOTION_GEO" name="stochastic-process">
+                <label for="check_BROWNIAN_MOTION_GEO">Geometric Brownian Motion</label>
 
-                <div class="stochastic-processes">
-                    <input type="radio" id="check_ORNSTEIN_UHLENBECK" name="gruppo">
-                    <label for="check_ORNSTEIN_UHLENBECK">Ornstein-Uhlenbeck [choose &#952;, µ, σ]</label>
-                </div>
+                <input type="radio" id="check_ORNSTEIN_UHLENBECK" name="stochastic-process">
+                <label for="check_ORNSTEIN_UHLENBECK">Ornstein-Uhlenbeck</label>
             </div>
 
             <button id="buttonRecompute" type="button">Update</button>
@@ -179,7 +176,94 @@
 
             
         <script src="script.js"> </script><br><br>
-        <p>Note: use click and drag the graph in its bottom-right corner to resize!</p><br><br>
+        <p>Note: use click and drag on the graph in its bottom-right corner to resize!</p><br><br>
+
+        <div id="simulationControls">
+            <h2 style="color: #000;">Comparison with other simulation schemes</h2>
+            <p style="font-size: 20px; color: black; text-align: left;">The Euler-Maruyama method is a simple and widely used numerical method for solving stochastic differential equations (SDEs). It is based on the Euler method for ordinary differential equations, but it adds a random term to account for the stochasticity of the SDE. However, the Euler-Maruyama method is only accurate up to the first order in the time step, and it may introduce significant errors in some cases.<br>
+
+                The Milstein method is an improvement over the Euler-Maruyama method that adds a second-order correction term to the approximation. This term involves the derivative of the diffusion coefficient of the SDE, which captures the effect of the noise on the drift of the solution. The Milstein method is more accurate and stable than the Euler-Maruyama method, but it requires more computations and it may not be applicable to some SDEs with complex diffusion coefficients.<br>
+                
+                The Runge-Kutta method is a general class of numerical methods for solving ordinary differential equations that can be extended to SDEs. The basic idea is to use multiple intermediate steps to estimate the value of the solution at the next time step, and then combine them with appropriate weights. The Runge-Kutta method can achieve higher orders of accuracy than the Euler-Maruyama and Milstein methods, but it also requires more evaluations of the drift and diffusion coefficients, and it may not preserve some properties of the SDE, such as the positivity or boundedness of the solution.<br>
+                
+                The Heun's method is a special case of the Runge-Kutta method that uses two intermediate steps: one with the Euler-Maruyama approximation, and one with the drift and diffusion coefficients evaluated at the Euler-Maruyama approximation. The Heun's method is also known as the improved Euler method or the trapezoidal rule. It is a second-order method that is more accurate than the Euler-Maruyama method, but less accurate than the Milstein method. It is also simpler and more robust than the Milstein method, as it does not require the derivative of the diffusion coefficient.<br>
+                
+                The choice of the best numerical method for solving a given SDE depends on several factors, such as the complexity of the drift and diffusion coefficients, the desired accuracy and stability of the solution, the computational cost and efficiency, and the preservation of the qualitative features of the SDE. There is no universal method that works well for all SDEs, and different methods may have different advantages and disadvantages in different situations. Therefore, it is important to compare and test different methods before applying them to a specific problem. </p>
+        
+            <h4 style="color:#000">References</h4>
+            <a href="https://hautahi.com/sde_simulation">Numerical SDE Simulation - Euler vs Milstein Methods</a><br>
+            <a href="https://felix11h.github.io/blog/euler-midpoint-rk">Comparing the Euler, Midpoint and Runge-Kutta method</a>
+        </div><br><br>
+
+        <h3>Attempt at managing user input using Chart.js</h3>
+        <div id="simulationControls">
+            <label for="sdeInput">Enter SDE:</label>
+            <textarea style="border: 3px solid black;" id="sdeInput" rows="4" cols="50" placeholder="Example: dX = a*X*dt + b*X*dW"></textarea>
+            <br>
+            <!-- Input for simulation parameters -->
+            <label for="numSteps">Number of Steps:</label>
+            <input type="number" id="numSteps" value="100" min="10" step="10">
+            <br>
+            <label for="dt">Time Step (dt):</label>
+            <input type="number" id="dt" value="0.01" min="0.001" step="0.001">
+            <br>
+            <button onclick="simulateSDE()">Simulate</button>
+        </div>
+
+        <!-- Plot area -->
+        <canvas id="plot"></canvas>
+        
+        <script>
+            function simulateSDE() {
+                // Get user input
+                var sdeInput = document.getElementById("sdeInput").value;
+                var numSteps = parseInt(document.getElementById("numSteps").value);
+                var dt = parseFloat(document.getElementById("dt").value);
+
+                // Parse SDE to JavaScript function
+                var sdeFunction = new Function('X', 'dt', 'dW', `return ${sdeInput};`);
+
+                // Simulate SDE
+                var X = new Array(numSteps).fill(0);
+                var dW = new Array(numSteps).fill(0);
+                X[0] = 1; // Set initial value of X to 1
+                for (var i = 1; i < numSteps; i++) {
+                    dW[i] = Math.sqrt(dt) * Math.random();
+                    X[i] = X[i - 1] + sdeFunction(X[i - 1], dt, dW[i]);
+                }
+
+                // Plot the simulation using Chart.js
+                var ctx = document.getElementById('plot').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: numSteps }, (_, i) => i * dt),
+                        datasets: [{
+                            label: 'Simulation',
+                            data: X,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: [{
+                                type: 'linear',
+                                position: 'bottom',
+                                name: 'Time'
+                            }],
+                            y : [{
+                                type: 'linear',
+                                position: 'bottom',
+                                name: 'Value'
+                            }]
+                        }
+                    }
+                });
+            }
+
+        </script>
 
 </body>
 </html>
