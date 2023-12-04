@@ -221,17 +221,17 @@ function getUserInput() {
     representAsScalingLimit = true;
 
     // Constants or functions for parameters (adjust based on your requirements)
-    const alpha = 0.1;
+    const alpha = document.getElementById("inputAlpha").value;
     const theta_t = document.getElementById("inputTheta").value;
     const sigma = 0.02;
-    const beta = 0.5;
+    const beta = document.getElementById("inputBeta").value;
 
     // Adjust these based on the range you want to visualize
-    myVariate_MinView = mu - sigmaMultipleForRange * sigma;
-    myVariate_MaxView = mu + sigmaMultipleForRange * sigma;
+    myVariate_MinView = mu - 5 * sigma;
+    myVariate_MaxView = mu + 5 * sigma;
 
     // Random jump function using the Euler-Maruyama method
-    myRandomJump = (currentR, t) => sigma * Math.exp(beta * currentR) * Math.sqrt(dt) * random_function.gaussian(0, 1);
+    myRandomJump = (currentR, t) => (theta_t - alpha * currentR) * dt + sigma * Math.exp(beta * currentR) * Math.sqrt(dt) * random_function.gaussian(0, 1);
 
     // Define the variate function
     myVariate = (sumOfJumps) => sumOfJumps;
@@ -245,8 +245,8 @@ function getUserInput() {
     representAsScalingLimit = true;
 
     // Parameters (adjust based on your requirements)
-    const kappa = 0.1;
-    const theta = 0.05;
+    const kappa = document.getElementById("inputKappa").value;
+    const theta = document.getElementById("inputTheta").value;
     const sigma = 0.02;
 
     // Adjust these based on the range you want to visualize
