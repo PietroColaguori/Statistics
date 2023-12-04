@@ -5,29 +5,23 @@ class random_function {
 
     static normaleStandardSaved = undefined;
   
-    static gaussian(Mean, StdDev) {     //Marsaglia polar method
-  
+    // Generate Gaussian with the Marsaglia polar method
+    static gaussian(Mean, StdDev) {
       if (this.normaleStandardSaved) {
         const normale = Mean + StdDev * this.normaleStandardSaved;
         this.normaleStandardSaved = undefined;
         return normale;
-  
       } else {
-  
-        let u, v, s = 0;
-  
-        while (s >= 1 || s === 0) {
+        let u, v, s;
+        do {
           u = 2 * Math.random() - 1;
           v = 2 * Math.random() - 1;
           s = u * u + v * v;
-        }
-  
+        } while (s >= 1 || s === 0);
         s = Math.sqrt(-2 * Math.log(s) / s);
         this.normaleStandardSaved = v * s;
         return Mean + StdDev * u * s;
-  
       }
-  
     }
   }
 
@@ -82,9 +76,13 @@ const ChosenVariate = Object.freeze({
     BROWNIAN_MOTION_STANDARD: Symbol("brownianMotion_Standard"),
     BROWNIAN_MOTION_GENERAL: Symbol("brownianMotion"),
     BROWNIAN_MOTION_GEO: Symbol("brownianMotion_Geometric"),
-    ORNSTEIN_UHLENBECK: Symbol("ornsteinUhlenbeck")
+    ORNSTEIN_UHLENBECK: Symbol("ornsteinUhlenbeck"),
+    BLACK_KARASINSKI: Symbol("blackKarasinski"),
+    COX_INGERSOLL_ROSS: Symbol("coxIngersollRoss"),
+    BERNOULLI: Symbol("bernoulli")
 });
 
+// Get the options from the control panel
 const buttonRecompute = document.getElementById("buttonRecompute");
 const inputMu = document.getElementById("inputMu");
 const inputSigma = document.getElementById("inputSigma");
@@ -93,13 +91,15 @@ const inputTimes = document.getElementById("inputTimes");
 const inputPaths = document.getElementById("inputPaths");
 const inputTheta = document.getElementById("inputTheta");
 
-
-
-
+// Get the radio for the desired stochastic process (SDE)
 const check_BROWNIAN_MOTION_STANDARD = document.getElementById("check_BROWNIAN_MOTION_STANDARD");
 const check_BROWNIAN_MOTION_GEN = document.getElementById("check_BROWNIAN_MOTION_GEN");
 const check_BROWNIAN_MOTION_GEO = document.getElementById("check_BROWNIAN_MOTION_GEO");
 const check_ORNSTEIN_UHLENBECK = document.getElementById("check_ORNSTEIN_UHLENBECK");
+const check_VASICEK = document.getElementById("check_VASICEK");
+const check_BERNOULLI = document.getElementById("check_BERNOULLI");
+const check_BLACK_KARASINSKI = document.getElementById("check_BLACK_KARASINSKI");
+const check_CIR = document.getElementById("check_CIR");
 
 const Graphic = document.getElementById("Graphic");
 const ctx = Graphic.getContext("2d");
@@ -134,7 +134,7 @@ buttonRecompute.onclick = mainTask;
 
 mainTask();
 
-function acquisizioneScelteUtente() {
+function getUserInput() {
 
     mu = Number(inputMu.value);
     sigma = Number(inputSigma.value);
@@ -150,8 +150,8 @@ function acquisizioneScelteUtente() {
     const sigmaMultipleForRange = 4;
 
     const dt = 1 / n;
-    const sigma_sqrt_dt = sigma * Math.sqrt(dt);          //varianza proporzionale al tempo
-    const sqrt_dt = Math.sqrt(dt);              //caso di sigma=1
+    const sigma_sqrt_dt = sigma * Math.sqrt(dt);  
+    const sqrt_dt = Math.sqrt(dt);
 
     if (check_BROWNIAN_MOTION_STANDARD.checked) {
         myProcessValueDescription = 'Standard BM ≈ Σ N(0, dt), where dt=1/n, mean=0, var=1 at last time n, taken as 1';
@@ -183,7 +183,7 @@ function acquisizioneScelteUtente() {
         myVariate = (productOfJumps) => productOfJumps;
         mul = true;
     
-    } else if(check_ORNSTEIN_UHLENBECK){
+    } else if(check_ORNSTEIN_UHLENBECK.checked){
         myProcessValueDescription = "Ornstein-Uhlenbeck process ≈ X_t = θ(μ - X_t)dt + σ dW_t, where W_t is a standard BM))";
         myProcessValueType = ChosenVariate.ORNSTEIN_UHLENBECK;
         representAsScalingLimit = true;
@@ -192,7 +192,79 @@ function acquisizioneScelteUtente() {
         myRandomJump = (currentX) => random_function.gaussian(theta * (mu - currentX) * dt, sigma_sqrt_dt);
         myVariate = (sumOfJumps) => sumOfJumps;
         mul = false;
-    }
+
+    }  else if (check_BERNOULLI.checked) {
+
+    myProcessValueDescription = "Bernoulli process: X_t = {0, 1} with probability p for success (1)";
+    myProcessValueType = ChosenVariate.BERNOULLI;
+    representAsScalingLimit = false;
+
+    // Probability of success (adjust based on your requirements)
+    const p = 0.5;
+
+    // Adjust these based on the range you want to visualize
+    myVariate_MinView = mu - sigmaMultipleForRange * sigma;
+    myVariate_MaxView = mu + sigmaMultipleForRange * sigma;
+
+    // Random jump function for Bernoulli process
+    myRandomJump = () => (Math.random() < p) ? 1 : 0;
+
+    // Define the variate function
+    myVariate = (sumOfJumps) => sumOfJumps;
+
+    mul = false;
+
+  } else if(check_BLACK_KARASINSKI.checked){
+
+    myProcessValueDescription = "Black-Karasinski process ≈ dr_t = (θ(t) - α r_t) dt + σ e^(β r_t) dW_t";
+    myProcessValueType = ChosenVariate.BLACK_KARASINSKI;
+    representAsScalingLimit = true;
+
+    // Constants or functions for parameters (adjust based on your requirements)
+    const alpha = 0.1;
+    const theta_t = document.getElementById("inputTheta").value;
+    const sigma = 0.02;
+    const beta = 0.5;
+
+    // Adjust these based on the range you want to visualize
+    myVariate_MinView = mu - sigmaMultipleForRange * sigma;
+    myVariate_MaxView = mu + sigmaMultipleForRange * sigma;
+
+    // Random jump function using the Euler-Maruyama method
+    myRandomJump = (currentR, t) => sigma * Math.exp(beta * currentR) * Math.sqrt(dt) * random_function.gaussian(0, 1);
+
+    // Define the variate function
+    myVariate = (sumOfJumps) => sumOfJumps;
+
+    mul = false;
+
+  } else if(check_CIR.checked) {
+
+    myProcessValueDescription = "Cox-Ingersoll-Ross process ≈ dr_t = κ(θ - r_t) dt + σ sqrt(r_t) dW_t";
+    myProcessValueType = ChosenVariate.COX_INGERSOLL_ROSS;
+    representAsScalingLimit = true;
+
+    // Parameters (adjust based on your requirements)
+    const kappa = 0.1;
+    const theta = 0.05;
+    const sigma = 0.02;
+
+    // Adjust these based on the range you want to visualize
+    myVariate_MinView = 0;
+    myVariate_MaxView = 0.2;
+
+    // Random jump function using the Euler-Maruyama method
+    myRandomJump = (currentR) => kappa * (theta - currentR) * dt + sigma * Math.sqrt(currentR * dt) * random_function.gaussian(0, 1);
+
+    // Define the variate function
+    myVariate = (sumOfJumps) => sumOfJumps;
+
+    mul = false;
+
+  }
+
+    const inputSDE = document.getElementById("inputSDE");
+    inputSDE.value = myProcessValueDescription;
 
     myProcessValue_Range = myVariate_MaxView - myVariate_MinView;
     intervalSize = myProcessValue_Range / NumberOfClasses;
@@ -203,7 +275,7 @@ function acquisizioneScelteUtente() {
 
 function mainTask() {
 
-    acquisizioneScelteUtente();     //acquisizione nuove scelte
+    getUserInput();     //acquisizione nuove scelte
     intervals_t = [];               //intervalli per distribuzione tempo intermedio
     intervals_n = [];               //intervalli per distribuzione tempo finale
     currentPathNumber = 0;
@@ -224,8 +296,6 @@ function mainTask() {
         }
 
         sovrapponiIstogrammi();
-        creaTaccheELegenda();
-    
 
 }
 
@@ -234,8 +304,6 @@ function sovrapponiIstogrammi() {
     //rettangolo contenitore istogramma
     const rettangoloIstogramma_t = new rectangular(for2d.transformX(timeForHistogram_t, 0, n, rectChart.x, rectChart.width), rectChart.y, 150, rectChart.height);
     const rettangoloIstogramma_n = new rectangular(for2d.transformX(timeForHistogram_n, 0, n, rectChart.x, rectChart.width), rectChart.y, 150, rectChart.height);
-    rettangoloIstogramma_t.draw_rectangular(ctx, "#5e0a6d", 2, [1, 1]);
-    rettangoloIstogramma_n.draw_rectangular(ctx, "#800995", 2, [1, 1]);
 
     //istogrammi
     forChart.verticalHistoFromIntervals(ctx, intervals_t, myVariate_MinView, myVariate_MaxView - myVariate_MinView, rettangoloIstogramma_t, "Silver", 1, "Silver");
@@ -271,10 +339,7 @@ function createSinglePath(s) {
 
         //const ascissa_t = for2d.transformX(t, 0, n, rectChart.x, rectChart.width);
         const ordinata = for2d.transformY(myProcessValue, myVariate_MinView, myProcessValue_Range, rectChart.y, rectChart.height);
-
-        //scalino mantenendo quota precedente
         myPath.lineTo(ascissa_t, previousY_Variate);
-        //salva quota per prossimo scalino
         previousY_Variate = ordinata;
 
         myPath.lineTo(ascissa_t, ordinata);
@@ -284,47 +349,3 @@ function createSinglePath(s) {
 
 }
 
-function creaTaccheELegenda() {
-
-    //rettangolo simulazione
-    rectChart.draw_rectangular(ctx, "purple", 2, []);
-
-    //label riferimenti numerici range, media, sigma della variata
-    ctx.font = "11px Comic Sans MS";
-    ctx.fillStyle = "purple";
-    ctx.fillText(myVariate_MaxView.toFixed(1), rectChart.right() + 10, rectChart.y - 7);
-    ctx.fillText(myVariate_MinView.toFixed(1), rectChart.right() + 10, rectChart.bottom() - 7);
-    ctx.fillStyle = "silver";
-    ctx.fillText("paths: " + currentPathNumber + "  avg = " + avgAtLastTime.toFixed(2) + "  var = " + (ssAtLastTime / numberOfSamplePaths).toFixed(2), rectChart.x + 350, rectChart.bottom() + 30);
-    ctx.fillStyle = "purple";
-    ctx.fillText("",rectChart.x + 100, rectChart.y + 15);
-
-    //tacche tempi/trials e tempi
-
-    ctx.beginPath();
-
-    if (representAsScalingLimit) {      //scaling limit: 0 -- 1
-        ctx.fillStyle = "purple";
-        ctx.strokeStyle = "purple";
-        for (let t = 0; t <= 1; t += 0.1) {
-            let ascissa_t = for2d.transformX(t, 0, 1, rectChart.x, rectChart.width);
-            ctx.moveTo(ascissa_t, rectChart.bottom() - 3);
-            ctx.lineTo(ascissa_t, rectChart.bottom() + 3);
-            ctx.fillText(t.toFixed(1).toString(), ascissa_t - 5, rectChart.bottom() + 15);
-        }
-
-    } else {
-
-        ctx.fillStyle = "purple";
-        ctx.strokeStyle = "purple";
-        const step = 10 ** Math.round(Math.log10(n) - 1);
-        for (let t = 0; t <= n; t += step) {
-            let ascissa_t = for2d.transformX(t, 0, n, rectChart.x, rectChart.width);
-            ctx.moveTo(ascissa_t, rectChart.bottom() - 3);
-            ctx.lineTo(ascissa_t, rectChart.bottom() + 3);
-            ctx.fillText(t.toFixed(1).toString(), ascissa_t - 5, rectChart.bottom() + 15);
-        }
-    }
-    ctx.stroke();
-
-}
