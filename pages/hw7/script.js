@@ -186,13 +186,17 @@ function getUserInput() {
         mul = true;
     
     } else if(check_ORNSTEIN_UHLENBECK.checked){
-        myProcessValueDescription = "Ornstein-Uhlenbeck process ≈ X_t = θ(μ - X_t)dt + σ dW_t, where W_t is a standard BM))";
+        let currentValue = 0;
+        myProcessValueDescription = "Ornstein-Uhlenbeck process ≈ dX_t = θ(μ - X_t)dt + σ dW_t, where W_t is a standard BM";
         myProcessValueType = ChosenVariate.ORNSTEIN_UHLENBECK;
-        representAsScalingLimit = true;
-        myVariate_MinView = mu - sigmaMultipleForRange * sigma;
-        myVariate_MaxView = mu + sigmaMultipleForRange * sigma;
-        myRandomJump = (currentX) => random_function.gaussian(theta * (mu - currentX) * dt, sigma_sqrt_dt);
-        myVariate = (sumOfJumps) => sumOfJumps;
+        representAsScalingLimit = false;
+        myVariate_MinView = Math.min(0, mu - sigmaMultipleForRange * sigma);
+        myVariate_MaxView = Math.max(0, mu + sigmaMultipleForRange * sigma);
+        myRandomJump = () => theta * (mu - currentValue) * dt + sigma * Math.sqrt(dt) * random_function.gaussian(0, 1);
+        myVariate = (sumOfJumps, t) => {
+          currentValue += sumOfJumps;
+          return sumOfJumps + theta * (mu - sumOfJumps) * dt;
+        };
         mul = false;
 
     } else if (check_BERNOULLI.checked) {
