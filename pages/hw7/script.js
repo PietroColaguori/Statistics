@@ -99,7 +99,8 @@ const check_ORNSTEIN_UHLENBECK = document.getElementById("check_ORNSTEIN_UHLENBE
 const check_VASICEK = document.getElementById("check_VASICEK");
 const check_BERNOULLI = document.getElementById("check_BERNOULLI");
 const check_BLACK_KARASINSKI = document.getElementById("check_BLACK_KARASINSKI");
-const check_CIR = document.getElementById("check_CIR");
+//const check_CIR = document.getElementById("check_CIR");
+const check_POISSON = document.getElementById("check_POISSON");
 
 const Graphic = document.getElementById("Graphic");
 const ctx = Graphic.getContext("2d");
@@ -193,75 +194,45 @@ function getUserInput() {
         myVariate = (sumOfJumps) => sumOfJumps;
         mul = false;
 
-    }  else if (check_BERNOULLI.checked) {
-
-    myProcessValueDescription = "Bernoulli process: X_t = {0, 1} with probability p for success (1)";
-    myProcessValueType = ChosenVariate.BERNOULLI;
-    representAsScalingLimit = false;
-
-    // Probability of success (adjust based on your requirements)
-    const p = 0.5;
-
-    // Adjust these based on the range you want to visualize
-    myVariate_MinView = mu - sigmaMultipleForRange * sigma;
-    myVariate_MaxView = mu + sigmaMultipleForRange * sigma;
-
-    // Random jump function for Bernoulli process
-    myRandomJump = () => (Math.random() < p) ? 1 : 0;
-
-    // Define the variate function
-    myVariate = (sumOfJumps) => sumOfJumps;
-
-    mul = false;
-
-  } else if(check_BLACK_KARASINSKI.checked){
-
-    myProcessValueDescription = "Black-Karasinski process ≈ dr_t = (θ(t) - α r_t) dt + σ e^(β r_t) dW_t";
-    myProcessValueType = ChosenVariate.BLACK_KARASINSKI;
-    representAsScalingLimit = true;
-
-    // Constants or functions for parameters (adjust based on your requirements)
-    const alpha = document.getElementById("inputAlpha").value;
-    const theta_t = document.getElementById("inputTheta").value;
-    const sigma = 0.02;
-    const beta = document.getElementById("inputBeta").value;
-
-    // Adjust these based on the range you want to visualize
-    myVariate_MinView = mu - 5 * sigma;
-    myVariate_MaxView = mu + 5 * sigma;
-
-    // Random jump function using the Euler-Maruyama method
-    myRandomJump = (currentR, t) => (theta_t - alpha * currentR) * dt + sigma * Math.exp(beta * currentR) * Math.sqrt(dt) * random_function.gaussian(0, 1);
-
-    // Define the variate function
-    myVariate = (sumOfJumps) => sumOfJumps;
-
-    mul = false;
-
-  } else if(check_CIR.checked) {
-
-    myProcessValueDescription = "Cox-Ingersoll-Ross process ≈ dr_t = κ(θ - r_t) dt + σ sqrt(r_t) dW_t";
-    myProcessValueType = ChosenVariate.COX_INGERSOLL_ROSS;
-    representAsScalingLimit = true;
-
-    // Parameters (adjust based on your requirements)
-    const kappa = document.getElementById("inputKappa").value;
-    const theta = document.getElementById("inputTheta").value;
-    const sigma = 0.02;
-
-    // Adjust these based on the range you want to visualize
-    myVariate_MinView = 0;
-    myVariate_MaxView = 0.2;
-
-    // Random jump function using the Euler-Maruyama method
-    myRandomJump = (currentR) => kappa * (theta - currentR) * dt + sigma * Math.sqrt(currentR * dt) * random_function.gaussian(0, 1);
-
-    // Define the variate function
-    myVariate = (sumOfJumps) => sumOfJumps;
-
-    mul = false;
-
-  }
+    } else if (check_BERNOULLI.checked) {
+      myProcessValueDescription = "Bernoulli process ≈ Σ Bernoulli(p), where p=0.5, mean=n/2, var=n/4 at last time n, taken as 1";
+      myProcessValueType = ChosenVariate.BERNOULLI;
+      representAsScalingLimit = true;
+      myVariate_MinView = -10;
+      myVariate_MaxView = 100;
+      const p = 0.5;
+      myRandomJump = () => (Math.random() < p) ? 1 : 0;
+      myVariate = (sumOfJumps) => sumOfJumps;
+      mul = false;
+} else if(check_POISSON.checked){
+  myProcessValueDescription = "Poisson process ≈ Σ Poisson(λ dt), where dt=1/n, mean=λ, var=λ at last time n, taken as 1";
+  myProcessValueType = ChosenVariate.POISSON;
+  representAsScalingLimit = true;
+  
+  // Adjust these based on the range you want to visualize
+  myVariate_MinView = 0;
+  myVariate_MaxView = 100;
+  
+  // Random jump function for Poisson process
+  myRandomJump = () => {
+      const poissonLambda = lambda * dt;
+      let count = 0;
+      let cumulativeProbability = Math.exp(-poissonLambda);
+  
+      while (Math.random() > cumulativeProbability) {
+          count++;
+          cumulativeProbability += Math.exp(-poissonLambda) * poissonLambda / count;
+      }
+  
+      return count;
+  };
+  
+  // Define the variate function
+  myVariate = (sumOfJumps) => sumOfJumps;
+  
+  // Assuming mul is a variable used elsewhere in your code
+  mul = false;
+}
 
     const inputSDE = document.getElementById("inputSDE");
     inputSDE.value = myProcessValueDescription;
