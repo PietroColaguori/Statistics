@@ -101,6 +101,7 @@ const check_BERNOULLI = document.getElementById("check_BERNOULLI");
 const check_BLACK_KARASINSKI = document.getElementById("check_BLACK_KARASINSKI");
 //const check_CIR = document.getElementById("check_CIR");
 const check_POISSON = document.getElementById("check_POISSON");
+const check_RANDOM_WALK = document.getElementById("check_RANDOM_WALK");
 
 const Graphic = document.getElementById("Graphic");
 const ctx = Graphic.getContext("2d");
@@ -204,7 +205,19 @@ function getUserInput() {
       myRandomJump = () => (Math.random() < p) ? 1 : 0;
       myVariate = (sumOfJumps) => sumOfJumps;
       mul = false;
-} else if(check_POISSON.checked){
+
+    } else if(check_RANDOM_WALK.checked) {
+      myProcessValueDescription = "Random walk ≈ Σ Bernoulli(0.5) - 0.5, where mean=0, var=n/4 at last time n, taken as 1";
+      myProcessValueType = ChosenVariate.RANDOM_WALK;
+      representAsScalingLimit = true;
+      myVariate_MinView = -100;
+      myVariate_MaxView = 100;
+      myRandomJump = () => (Math.random() < 0.5) ? 1 : -1;
+      myVariate = (sumOfJumps) => sumOfJumps;
+      mul = false;
+    } 
+
+  else if(check_POISSON.checked){
   myProcessValueDescription = "Poisson process ≈ Σ Poisson(λ dt), where dt=1/n, mean=λ, var=λ at last time n, taken as 1";
   myProcessValueType = ChosenVariate.POISSON;
   representAsScalingLimit = true;
